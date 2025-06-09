@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emprendedores Futuro - Clasificados</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <header class="futurist-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="images/logo.svg" alt="Emprendedores Futuro">
+                    <h1 id="siteTitle">Emprendedores Futuro</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="theme-switch">
+                        <i class="fas fa-moon"></i>
+                        <label class="switch">
+                            <input type="checkbox" id="themeToggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <button class="btn-primary" id="addBusinessBtn">
+                        <i class="fas fa-plus"></i> Añadir Negocio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h2 class="futurist-title">Conectando emprendedores con el futuro</h2>
+                <p>Descubre los mejores negocios locales en nuestra plataforma</p>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar negocios por nombre, ciudad o tipo...">
+                    <button id="searchBtn" class="btn-primary"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <i class="fas fa-store"></i>
+                    <div>
+                        <h3 id="totalBusinesses">0</h3>
+                        <p>Negocios</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div>
+                        <h3 id="totalVisits">0</h3>
+                        <p>Visitas hoy</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <h3 id="totalCities">0</h3>
+                        <p>Ciudades</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="filters-section">
+            <div class="filter-group">
+                <label for="cityFilter"><i class="fas fa-city"></i> Ciudad</label>
+                <select id="cityFilter">
+                    <option value="">Todas las ciudades</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="businessTypeFilter"><i class="fas fa-tag"></i> Tipo de Negocio</label>
+                <select id="businessTypeFilter">
+                    <option value="">Todos los tipos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="sortFilter"><i class="fas fa-sort"></i> Ordenar por</label>
+                <select id="sortFilter">
+                    <option value="likes">Más populares</option>
+                    <option value="recent">Más recientes</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="business-list" id="businessContainer">
+            <!-- Los negocios se cargarán aquí via JavaScript -->
+        </section>
+
+        <div class="pagination" id="pagination">
+            <button id="prevPage" disabled><i class="fas fa-chevron-left"></i></button>
+            <span id="pageInfo">Página 1</span>
+            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </main>
+
+    <footer class="futurist-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3 id="footerTitle">Emprendedores Futuro</h3>
+                    <p id="footerText">© 2023 Emprendedores Futuro - Todos los derechos reservados</p>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contacto</h4>
+                    <a href="#" id="footerWhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Email</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Enlaces</h4>
+                    <a href="#">Añadir negocio</a>
+                    <a href="#">Publicidad</a>
+                    <a href="#">Términos y condiciones</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal para añadir negocio -->
+    <div class="modal" id="addBusinessModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Añadir tu negocio</h2>
+            <form id="businessForm">
+                <!-- Formulario omitido por brevedad -->
+            </form>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
