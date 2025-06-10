@@ -1,15 +1,20 @@
-// JavaScript Document// Configuración
-const API_URL = "TU_URL_DE_APPS_SCRIPT"; // Reemplazar con tu URL
-const BUSINESS_PER_PAGE = 9;
-let currentPage = 1;
-let allBusinesses = [];
-let filteredBusinesses = [];
-let iconsMap = {};
-let config = {};
+// Configuración
+const CONFIG = {
+    apiUrl: "https://script.google.com/macros/s/AKfycby-GPmktQVKt8b2noJJRRIrhFoqPfuxs4lZLelaI7fnqfwkLE3Qrvxrgl5Y15qdZpCMIw/exec", // Reemplazar con tu URL de Apps Script
+    itemsPerPage: 9,
+    currentPage: 1,
+    businesses: [],
+    filteredBusinesses: [],
+    icons: {},
+    config: {},
+    likedBusinesses: JSON.parse(localStorage.getItem('likedBusinesses')) || []
+};
 
 // Elementos del DOM
-const elements = {
+const DOM = {
+    loadingOverlay: document.getElementById('loadingOverlay'),
     businessContainer: document.getElementById('businessContainer'),
+    noResults: document.getElementById('noResults'),
     searchInput: document.getElementById('searchInput'),
     searchBtn: document.getElementById('searchBtn'),
     cityFilter: document.getElementById('cityFilter'),
@@ -26,245 +31,310 @@ const elements = {
     footerTitle: document.getElementById('footerTitle'),
     footerText: document.getElementById('footerText'),
     footerWhatsApp: document.getElementById('footerWhatsApp'),
-    loadingOverlay: document.getElementById('loadingOverlay'),
     addBusinessBtn: document.getElementById('addBusinessBtn'),
     addBusinessModal: document.getElementById('addBusinessModal')
 };
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', async () => {
-    showLoading();
+// Funciones de utilidad
+const utils = {
+    showLoading: () => {
+        DOM.loadingOverlay.style.display = 'flex';
+    },
     
-    try {
-        // Cargar configuración
-        config = await fetchData('getConfig');
-        
-        // Cargar iconos
-        iconsMap = await fetchData('getIcons');
-        
-        // Cargar negocios
-        allBusinesses = await fetchData('getBusinesses');
-        filteredBusinesses = [...allBusinesses];
-        
-        // Actualizar UI con configuración
-        updateConfigUI();
-        
-        // Inicializar filtros
-        initFilters();
-        
-        // Mostrar primera página
-        displayBusinesses();
-        
-        // Configurar eventos
-        setupEventListeners();
-        
-        // Ocultar loading
-        hideLoading();
-    } catch (error) {
-        console.error("Error inicializando la aplicación:", error);
-        hideLoading();
-        alert("Error cargando los datos. Por favor recarga la página.");
+    hideLoading: () => {
+        DOM.loadingOverlay.style.display = 'none';
+    },
+    
+    setTheme: (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        DOM.themeToggle.checked = theme === 'dark';
+    },
+    
+    debounce: (func, delay) => {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
     }
-});
+};
 
-// Funciones para obtener datos
-async function fetchData(action, data = {}) {
-    const url = `${API_URL}?action=${action}`;
-    const response = await fetch(url);
-    return await response.json();
-}
-
-async function postData(action, data) {
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action, ...data }),
-        headers: {
-            'Content-Type': 'application/json'
+// Funciones de API
+const api = {
+    fetchData: async (action) => {
+        try {
+            const response = await fetch(`${CONFIG.apiUrl}?action=${action}`);
+            if (!response.ok) throw new Error('Error en la respuesta de la API');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            throw error;
         }
-    });
-    return await response.json();
-}
-
-// Actualizar UI con configuración
-function updateConfigUI() {
-    if (config.TituloSitio) {
-        elements.siteTitle.textContent = config.TituloSitio;
-        elements.footerTitle.textContent = config.TituloSitio;
+    },
+    
+    postData: async (action, data) => {
+        try {
+            const response = await fetch(CONFIG.apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action, ...data })
+            });
+            if (!response.ok) throw new Error('Error en la respuesta de la API');
+            return await response.json();
+        } catch (error) {
+            console.error('Error posting data:', error);
+            throw error;
+        }
     }
-    
-    if (config.TextoFooter) {
-        elements.footerText.textContent = config.TextoFooter;
-    }
-    
-    if (config.ContactoWhatsApp) {
-        elements.footerWhatsApp.href = `https://wa.me/${config.ContactoWhatsApp}`;
-    }
-    
-    // Configurar tema inicial
-    const savedTheme = localStorage.getItem('theme') || (config.ModoOscuro === 'true' ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    elements.themeToggle.checked = savedTheme === 'dark';
-}
+};
 
-// Inicializar filtros
-function initFilters() {
-    // Obtener ciudades únicas
-    const cities = [...new Set(allBusinesses.map(b => b.Ciudad))].filter(Boolean);
-    cities.sort();
+// Funciones de negocio
+const business = {
+    init: async () => {
+        utils.showLoading();
+        
+        try {
+            // Cargar configuración
+            CONFIG.config = await api.fetchData('getConfig');
+            
+            // Cargar iconos
+            CONFIG.icons = await api.fetchData('getIcons');
+            
+            // Cargar negocios
+            CONFIG.businesses = await api.fetchData('getBusinesses');
+            CONFIG.filteredBusinesses = [...CONFIG.businesses];
+            
+            // Actualizar UI
+            ui.updateConfig();
+            ui.initFilters();
+            ui.displayBusinesses();
+            
+            // Configurar eventos
+            events.setup();
+            
+            utils.hideLoading();
+        } catch (error) {
+            console.error('Error initializing app:', error);
+            utils.hideLoading();
+            alert('Error cargando los datos. Por favor recarga la página.');
+        }
+    },
     
-    // Obtener tipos de negocio únicos
-    const businessTypes = [...new Set(allBusinesses.map(b => b['Tipo de Negocio']))].filter(Boolean);
-    businessTypes.sort();
+    filterBusinesses: () => {
+        const searchTerm = DOM.searchInput.value.toLowerCase();
+        const cityFilter = DOM.cityFilter.value;
+        const businessTypeFilter = DOM.businessTypeFilter.value;
+        const sortBy = DOM.sortFilter.value;
+        
+        CONFIG.filteredBusinesses = CONFIG.businesses.filter(b => {
+            const matchesSearch = 
+                b['Nombre Negocio'].toLowerCase().includes(searchTerm) ||
+                b.Descripción?.toLowerCase().includes(searchTerm) ||
+                b.Ciudad.toLowerCase().includes(searchTerm) ||
+                b['Tipo de Negocio'].toLowerCase().includes(searchTerm);
+            
+            const matchesCity = cityFilter ? b.Ciudad === cityFilter : true;
+            const matchesType = businessTypeFilter ? b['Tipo de Negocio'] === businessTypeFilter : true;
+            
+            return matchesSearch && matchesCity && matchesType;
+        });
+        
+        // Ordenar
+        if (sortBy === 'likes') {
+            CONFIG.filteredBusinesses.sort((a, b) => (b.Likes || 0) - (a.Likes || 0));
+        } else {
+            CONFIG.filteredBusinesses.sort((a, b) => new Date(b['Fecha Registro']) - new Date(a['Fecha Registro']));
+        }
+        
+        CONFIG.currentPage = 1;
+        ui.displayBusinesses();
+    },
     
-    // Llenar filtro de ciudades
-    cities.forEach(city => {
-        const option = document.createElement('option');
-        option.value = city;
-        option.textContent = city;
-        elements.cityFilter.appendChild(option);
-    });
-    
-    // Llenar filtro de tipos de negocio
-    businessTypes.forEach(type => {
-        const option = document.createElement('option');
-        option.value = type;
-        option.textContent = type;
-        elements.businessTypeFilter.appendChild(option);
-    });
-    
-    // Actualizar estadísticas
-    elements.totalBusinesses.textContent = allBusinesses.length;
-    elements.totalCities.textContent = cities.length;
-}
-
-// Mostrar negocios
-function displayBusinesses() {
-    elements.businessContainer.innerHTML = '';
-    
-    const startIndex = (currentPage - 1) * BUSINESS_PER_PAGE;
-    const endIndex = startIndex + BUSINESS_PER_PAGE;
-    const businessesToShow = filteredBusinesses.slice(startIndex, endIndex);
-    
-    if (businessesToShow.length === 0) {
-        elements.businessContainer.innerHTML = `
-            <div class="no-results">
-                <i class="fas fa-search"></i>
-                <h3>No se encontraron negocios</h3>
-                <p>Intenta con otros filtros o términos de búsqueda</p>
-            </div>
-        `;
-        return;
+    likeBusiness: async (businessId) => {
+        try {
+            if (CONFIG.likedBusinesses.includes(businessId)) {
+                return; // Ya dio like
+            }
+            
+            const result = await api.postData('likeBusiness', { businessId });
+            if (result.success) {
+                CONFIG.likedBusinesses.push(businessId);
+                localStorage.setItem('likedBusinesses', JSON.stringify(CONFIG.likedBusinesses));
+                
+                // Actualizar en memoria
+                const business = CONFIG.businesses.find(b => b['Nombre Negocio'] === businessId);
+                if (business) {
+                    business.Likes = (business.Likes || 0) + 1;
+                }
+                
+                // Refrescar visualización si está visible
+                if (CONFIG.filteredBusinesses.some(b => b['Nombre Negocio'] === businessId)) {
+                    business.filterBusinesses();
+                }
+            }
+        } catch (error) {
+            console.error('Error liking business:', error);
+        }
     }
-    
-    businessesToShow.forEach(business => {
-        const businessCard = createBusinessCard(business);
-        elements.businessContainer.appendChild(businessCard);
-    });
-    
-    updatePagination();
-}
+};
 
-// Crear tarjeta de negocio
-function createBusinessCard(business) {
-    const card = document.createElement('div');
-    card.className = 'business-card';
+// Funciones de UI
+const ui = {
+    updateConfig: () => {
+        if (CONFIG.config.TituloSitio) {
+            DOM.siteTitle.textContent = CONFIG.config.TituloSitio;
+            DOM.footerTitle.textContent = CONFIG.config.TituloSitio;
+        }
+        
+        if (CONFIG.config.TextoFooter) {
+            DOM.footerText.textContent = CONFIG.config.TextoFooter;
+        }
+        
+        if (CONFIG.config.ContactoWhatsApp) {
+            DOM.footerWhatsApp.href = `https://wa.me/${CONFIG.config.ContactoWhatsApp}`;
+        }
+        
+        // Tema inicial
+        const savedTheme = localStorage.getItem('theme') || 
+                          (CONFIG.config.ModoOscuro === 'true' ? 'dark' : 'light');
+        utils.setTheme(savedTheme);
+    },
     
-    const icon = iconsMap[business['Tipo de Negocio']] || 'fas fa-store';
+    initFilters: () => {
+        // Ciudades
+        const cities = [...new Set(CONFIG.businesses.map(b => b.Ciudad))].filter(Boolean);
+        cities.sort();
+        cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            DOM.cityFilter.appendChild(option);
+        });
+        
+        // Tipos de negocio
+        const businessTypes = [...new Set(CONFIG.businesses.map(b => b['Tipo de Negocio']))].filter(Boolean);
+        businessTypes.sort();
+        businessTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            DOM.businessTypeFilter.appendChild(option);
+        });
+        
+        // Estadísticas
+        DOM.totalBusinesses.textContent = CONFIG.businesses.length;
+        DOM.totalCities.textContent = cities.length;
+    },
     
-    card.innerHTML = `
-        <div class="business-header">
+    displayBusinesses: () => {
+        const startIdx = (CONFIG.currentPage - 1) * CONFIG.itemsPerPage;
+        const endIdx = startIdx + CONFIG.itemsPerPage;
+        const businessesToShow = CONFIG.filteredBusinesses.slice(startIdx, endIdx);
+        
+        DOM.businessContainer.innerHTML = '';
+        
+        if (businessesToShow.length === 0) {
+            DOM.noResults.style.display = 'block';
+            return;
+        }
+        
+        DOM.noResults.style.display = 'none';
+        
+        businessesToShow.forEach(b => {
+            const card = ui.createBusinessCard(b);
+            DOM.businessContainer.appendChild(card);
+        });
+        
+        ui.updatePagination();
+    },
+    
+    createBusinessCard: (business) => {
+        const card = document.createElement('div');
+        card.className = 'business-card';
+        
+        const icon = CONFIG.icons[business['Tipo de Negocio']] || 'fas fa-store';
+        const isLiked = CONFIG.likedBusinesses.includes(business['Nombre Negocio']);
+        
+        // Imagen si está disponible
+        if (business.ImagenURL) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'business-image';
+            imgDiv.style.backgroundImage = `url(${business.ImagenURL})`;
+            card.appendChild(imgDiv);
+        }
+        
+        // Header
+        const header = document.createElement('div');
+        header.className = 'business-header';
+        header.innerHTML = `
             <i class="${icon}"></i>
             <h3>${business['Nombre Negocio']}</h3>
             <span class="city-badge">${business.Ciudad}</span>
-        </div>
-        <div class="business-body">
+        `;
+        card.appendChild(header);
+        
+        // Body
+        const body = document.createElement('div');
+        body.className = 'business-body';
+        body.innerHTML = `
             <p>${business.Descripción || 'Sin descripción disponible'}</p>
             <div class="business-contact">
                 ${business.Teléfono ? `<a href="tel:${business.Teléfono}"><i class="fas fa-phone"></i> ${business.Teléfono}</a>` : ''}
                 ${business.WhatsApp ? `<a href="https://wa.me/${business.WhatsApp}" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>` : ''}
                 ${business.Dirección ? `<a href="#"><i class="fas fa-map-marker-alt"></i> ${business.Dirección}</a>` : ''}
             </div>
-        </div>
-        <div class="business-actions">
-            <button class="like-btn" data-id="${business['Nombre Negocio']}">
+        `;
+        card.appendChild(body);
+        
+        // Actions
+        const actions = document.createElement('div');
+        actions.className = 'business-actions';
+        actions.innerHTML = `
+            <button class="like-btn ${isLiked ? 'liked' : ''}" data-id="${business['Nombre Negocio']}">
                 <i class="fas fa-thumbs-up"></i> <span class="like-count">${business.Likes || 0}</span>
             </button>
             <button class="comment-btn" data-id="${business['Nombre Negocio']}">
                 <i class="fas fa-comment"></i> Comentar
             </button>
-        </div>
-    `;
-    
-    // Añadir imagen si está disponible
-    if (business.ImagenURL) {
-        const imgDiv = document.createElement('div');
-        imgDiv.className = 'business-image';
-        imgDiv.style.backgroundImage = `url(${business.ImagenURL})`;
-        card.insertBefore(imgDiv, card.firstChild);
-    }
-    
-    return card;
-}
-
-// Actualizar paginación
-function updatePagination() {
-    const totalPages = Math.ceil(filteredBusinesses.length / BUSINESS_PER_PAGE);
-    
-    elements.pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
-    elements.prevPage.disabled = currentPage === 1;
-    elements.nextPage.disabled = currentPage === totalPages || totalPages === 0;
-}
-
-// Filtrar negocios
-function filterBusinesses() {
-    const searchTerm = elements.searchInput.value.toLowerCase();
-    const cityFilter = elements.cityFilter.value;
-    const businessTypeFilter = elements.businessTypeFilter.value;
-    const sortBy = elements.sortFilter.value;
-    
-    filteredBusinesses = allBusinesses.filter(business => {
-        const matchesSearch = 
-            business['Nombre Negocio'].toLowerCase().includes(searchTerm) ||
-            business.Descripción.toLowerCase().includes(searchTerm) ||
-            business.Ciudad.toLowerCase().includes(searchTerm) ||
-            business['Tipo de Negocio'].toLowerCase().includes(searchTerm);
+        `;
+        card.appendChild(actions);
         
-        const matchesCity = cityFilter ? business.Ciudad === cityFilter : true;
-        const matchesType = businessTypeFilter ? business['Tipo de Negocio'] === businessTypeFilter : true;
-        
-        return matchesSearch && matchesCity && matchesType;
-    });
+        return card;
+    },
     
-    // Ordenar
-    if (sortBy === 'likes') {
-        filteredBusinesses.sort((a, b) => (b.Likes || 0) - (a.Likes || 0));
-    } else {
-        filteredBusinesses.sort((a, b) => new Date(b['Fecha Registro']) - new Date(a['Fecha Registro']));
+    updatePagination: () => {
+        const totalPages = Math.ceil(CONFIG.filteredBusinesses.length / CONFIG.itemsPerPage);
+        DOM.pageInfo.textContent = `Página ${CONFIG.currentPage} de ${totalPages}`;
+        DOM.prevPage.disabled = CONFIG.currentPage === 1;
+        DOM.nextPage.disabled = CONFIG.currentPage === totalPages || totalPages === 0;
     }
-    
-    // Resetear a página 1
-    currentPage = 1;
-    displayBusinesses();
-}
+};
 
-// Configurar event listeners
-function setupEventListeners() {
-    // Filtros y búsqueda
-    elements.searchInput.addEventListener('input', filterBusinesses);
-    elements.searchBtn.addEventListener('click', filterBusinesses);
-    elements.cityFilter.addEventListener('change', filterBusinesses);
-    elements.businessTypeFilter.addEventListener('change', filterBusinesses);
-    elements.sortFilter.addEventListener('change', filterBusinesses);
-    
-    // Paginación
-    elements.prevPage.addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            displayBusinesses();
-        }
-    });
-    
-    elements.nextPage.addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredBusinesses.length / BUSINESS_PER_PAGE);
-        if (currentPage < totalPages) {
-           
+// Manejo de eventos
+const events = {
+    setup: () => {
+        // Búsqueda y filtros
+        DOM.searchInput.addEventListener('input', utils.debounce(business.filterBusinesses, 300));
+        DOM.searchBtn.addEventListener('click', business.filterBusinesses);
+        DOM.cityFilter.addEventListener('change', business.filterBusinesses);
+        DOM.businessTypeFilter.addEventListener('change', business.filterBusinesses);
+        DOM.sortFilter.addEventListener('change', business.filterBusinesses);
+        
+        // Paginación
+        DOM.prevPage.addEventListener('click', () => {
+            if (CONFIG.currentPage > 1) {
+                CONFIG.currentPage--;
+                ui.displayBusinesses();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+        
+        DOM.nextPage.addEventListener('click', () => {
+            const totalPages = Math.ceil(CONFIG.filteredBusinesses.length / CONFIG.itemsPerPage);
+            if (CONFIG.currentPage < totalPages) {
+                CONFIG.currentPage++;
+                ui.displayBusinesses();
+                window.scrollTo({ top
