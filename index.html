@@ -1,164 +1,1006 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emprendedores Futuro - Clasificados</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+    <title>Clasificados Venezuela - Directorio Nacional e Internacional</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --venezuela-yellow: #FFD700;
+            --venezuela-blue: #1E40AF;
+            --venezuela-red: #DC2626;
+            --venezuela-light-blue: #3B82F6;
+        }
+        
+        .bg-venezuela-gradient {
+            background: linear-gradient(135deg, var(--venezuela-yellow) 0%, var(--venezuela-light-blue) 100%);
+        }
+        
+        .text-venezuela-blue { color: var(--venezuela-blue); }
+        .text-venezuela-red { color: var(--venezuela-red); }
+        .bg-venezuela-blue { background-color: var(--venezuela-blue); }
+        .bg-venezuela-red { background-color: var(--venezuela-red); }
+        .bg-venezuela-yellow { background-color: var(--venezuela-yellow); }
+        
+        .business-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .business-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--venezuela-light-blue);
+        }
+        
+        .category-card {
+            transition: all 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: scale(1.05);
+            background-color: var(--venezuela-light-blue);
+            color: white;
+        }
+        
+        .like-btn, .dislike-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .like-btn:hover {
+            background-color: #10B981;
+            color: white;
+        }
+        
+        .dislike-btn:hover {
+            background-color: #EF4444;
+            color: white;
+        }
+        
+        .admin-panel {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .search-highlight {
+            background-color: #FEF3C7;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
 </head>
-<body>
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-        <p>Cargando datos...</p>
-    </div>
-
-    <header class="main-header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <img src="images/logo.svg" alt="Emprendedores Futuro" id="logoImg">
-                    <h1 id="siteTitle">Emprendedores Futuro</h1>
-                </div>
-                <div class="header-actions">
-                    <div class="theme-switch-wrapper">
-                        <i class="fas fa-moon"></i>
-                        <label class="theme-switch">
-                            <input type="checkbox" id="themeToggle">
-                            <span class="slider round"></span>
-                        </label>
-                        <i class="fas fa-sun"></i>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-venezuela-gradient shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-star text-3xl text-venezuela-blue"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold text-venezuela-blue">Clasificados Venezuela</h1>
+                        <p class="text-sm text-venezuela-blue opacity-80">Directorio Nacional e Internacional</p>
                     </div>
-                    <button class="btn btn-primary" id="addBusinessBtn">
-                        <i class="fas fa-plus"></i> Añadir Negocio
-                    </button>
                 </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#inicio" class="text-venezuela-blue hover:text-venezuela-red font-medium transition">Inicio</a>
+                    <a href="#categorias" class="text-venezuela-blue hover:text-venezuela-red font-medium transition">Categorías</a>
+                    <a href="#contacto" class="text-venezuela-blue hover:text-venezuela-red font-medium transition">Contacto</a>
+                    <button onclick="toggleAdminPanel()" class="bg-venezuela-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-cog mr-2"></i>Admin
+                    </button>
+                </nav>
+                <button class="md:hidden text-venezuela-blue text-2xl" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-4 space-y-3">
+                <a href="#inicio" class="block text-venezuela-blue hover:text-venezuela-red">Inicio</a>
+                <a href="#categorias" class="block text-venezuela-blue hover:text-venezuela-red">Categorías</a>
+                <a href="#contacto" class="block text-venezuela-blue hover:text-venezuela-red">Contacto</a>
+                <button onclick="toggleAdminPanel()" class="block w-full text-left bg-venezuela-blue text-white px-4 py-2 rounded-lg">
+                    <i class="fas fa-cog mr-2"></i>Panel Admin
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="main-content">
-        <section class="hero-section">
-            <div class="container">
-                <div class="hero-content">
-                    <h2 class="hero-title">Conectando emprendedores con el futuro</h2>
-                    <p class="hero-subtitle">Descubre los mejores negocios locales en nuestra plataforma</p>
-                    <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Buscar negocios..." aria-label="Buscar negocios">
-                        <button id="searchBtn" class="btn btn-primary" aria-label="Buscar">
-                            <i class="fas fa-search"></i>
+    <!-- Search Section -->
+    <section class="bg-white py-8 shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-venezuela-blue mb-6">
+                    Encuentra el Mejor Negocio para Ti
+                </h2>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <input 
+                            type="text" 
+                            id="search-input"
+                            placeholder="Buscar negocios, servicios, productos..."
+                            class="w-full px-4 py-3 pl-12 border-2 border-gray-300 rounded-lg focus:border-venezuela-blue focus:outline-none text-lg"
+                            oninput="performSearch()"
+                        >
+                        <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+                    </div>
+                    <select id="location-filter" class="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-venezuela-blue focus:outline-none bg-white" onchange="applyFilters()">
+                        <option value="">Todas las ubicaciones</option>
+                        <option value="Caracas">Caracas</option>
+                        <option value="Maracaibo">Maracaibo</option>
+                        <option value="Valencia">Valencia</option>
+                        <option value="Barquisimeto">Barquisimeto</option>
+                        <option value="Maracay">Maracay</option>
+                        <option value="Ciudad Guayana">Ciudad Guayana</option>
+                        <option value="Barcelona">Barcelona</option>
+                        <option value="Mérida">Mérida</option>
+                        <option value="Internacional">Internacional</option>
+                    </select>
+                    <select id="category-filter" class="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-venezuela-blue focus:outline-none bg-white" onchange="applyFilters()">
+                        <option value="">Todas las categorías</option>
+                        <option value="Restaurantes">Restaurantes y Comida</option>
+                        <option value="Servicios">Servicios Profesionales</option>
+                        <option value="Comercios">Comercios y Tiendas</option>
+                        <option value="Salud">Salud y Belleza</option>
+                        <option value="Educación">Educación</option>
+                        <option value="Tecnología">Tecnología</option>
+                        <option value="Construcción">Construcción</option>
+                        <option value="Transporte">Transporte</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categorias" class="py-12">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-venezuela-blue mb-8">Categorías Populares</h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Restaurantes')">
+                    <i class="fas fa-utensils text-3xl text-venezuela-red mb-3"></i>
+                    <h3 class="font-semibold">Restaurantes</h3>
+                </div>
+                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Servicios')">
+                    <i class="fas fa-briefcase text-3xl text-venezuela-blue mb-3"></i>
+                    <h3 class="font-semibold">Servicios</h3>
+                </div>
+                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Comercios')">
+                    <i class="fas fa-store text-3xl text-green-600 mb-3"></i>
+                    <h3 class="font-semibold">Comercios</h3>
+                </div>
+                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Salud')">
+                    <i class="fas fa-heart text-3xl text-red-500 mb-3"></i>
+                    <h3 class="font-semibold">Salud</h3>
+                </div>
+                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Tecnología')">
+                    <i class="fas fa-laptop text-3xl text-blue-600 mb-3"></i>
+                    <h3 class="font-semibold">Tecnología</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sort Options -->
+    <section class="bg-white py-4 border-t border-b">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                    <span class="text-gray-600">Ordenar por:</span>
+                    <select id="sort-options" class="px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue" onchange="sortBusinesses()">
+                        <option value="newest">Más recientes</option>
+                        <option value="popular">Más populares</option>
+                        <option value="name">Nombre A-Z</option>
+                        <option value="location">Ubicación</option>
+                    </select>
+                </div>
+                <div class="text-gray-600">
+                    <span id="results-count">0 negocios encontrados</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Listings -->
+    <section class="py-8">
+        <div class="container mx-auto px-4">
+            <div id="business-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Business cards will be populated by JavaScript -->
+            </div>
+            
+            <!-- No results message -->
+            <div id="no-results" class="hidden text-center py-12">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No se encontraron resultados</h3>
+                <p class="text-gray-500">Prueba con otros términos de búsqueda o filtros</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Panel Overlay -->
+    <div id="admin-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="admin-panel min-h-screen flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <!-- Admin Header -->
+                <div class="bg-venezuela-blue text-white p-6 rounded-t-lg">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold">
+                            <i class="fas fa-cog mr-3"></i>Panel de Administración
+                        </h2>
+                        <button onclick="closeAdminPanel()" class="text-white hover:text-gray-300 text-2xl">
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
-                <div class="hero-stats">
-                    <div class="stat-card">
-                        <i class="fas fa-store stat-icon"></i>
-                        <div class="stat-info">
-                            <h3 id="totalBusinesses">0</h3>
-                            <p>Negocios</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-users stat-icon"></i>
-                        <div class="stat-info">
-                            <h3 id="totalVisits">0</h3>
-                            <p>Visitas</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-map-marker-alt stat-icon"></i>
-                        <div class="stat-info">
-                            <h3 id="totalCities">0</h3>
-                            <p>Ciudades</p>
-                        </div>
+
+                <!-- Admin Login -->
+                <div id="admin-login" class="p-6">
+                    <h3 class="text-xl font-semibold mb-4">Acceso de Administrador</h3>
+                    <div class="space-y-4">
+                        <input type="password" id="admin-password" placeholder="Contraseña de administrador" 
+                               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                        <button onclick="adminLogin()" class="w-full bg-venezuela-blue text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Acceder
+                        </button>
+                        <p class="text-sm text-gray-600">Contraseña por defecto: <strong>admin123</strong></p>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <div class="container">
-            <section class="filters-section">
-                <div class="filter-group">
-                    <label for="cityFilter"><i class="fas fa-city"></i> Ciudad</label>
-                    <select id="cityFilter" class="form-select">
-                        <option value="">Todas las ciudades</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="businessTypeFilter"><i class="fas fa-tag"></i> Tipo</label>
-                    <select id="businessTypeFilter" class="form-select">
-                        <option value="">Todos los tipos</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="sortFilter"><i class="fas fa-sort"></i> Ordenar</label>
-                    <select id="sortFilter" class="form-select">
-                        <option value="likes">Más populares</option>
-                        <option value="recent">Más recientes</option>
-                    </select>
-                </div>
-            </section>
+                <!-- Admin Dashboard -->
+                <div id="admin-dashboard" class="hidden">
+                    <div class="border-b">
+                        <nav class="flex space-x-8 px-6">
+                            <button onclick="showAdminTab('add-business')" class="admin-tab-btn py-4 border-b-2 border-transparent hover:border-venezuela-blue">
+                                <i class="fas fa-plus mr-2"></i>Agregar Negocio
+                            </button>
+                            <button onclick="showAdminTab('manage-business')" class="admin-tab-btn py-4 border-b-2 border-transparent hover:border-venezuela-blue">
+                                <i class="fas fa-list mr-2"></i>Gestionar Negocios
+                            </button>
+                            <button onclick="showAdminTab('statistics')" class="admin-tab-btn py-4 border-b-2 border-transparent hover:border-venezuela-blue">
+                                <i class="fas fa-chart-bar mr-2"></i>Estadísticas
+                            </button>
+                        </nav>
+                    </div>
 
-            <section class="business-list" id="businessContainer">
-                <!-- Los negocios se cargarán aquí via JavaScript -->
-                <div class="no-results" id="noResults" style="display: none;">
-                    <i class="fas fa-search no-results-icon"></i>
-                    <h3>No se encontraron negocios</h3>
-                    <p>Intenta con otros filtros o términos de búsqueda</p>
-                </div>
-            </section>
+                    <!-- Add Business Tab -->
+                    <div id="add-business-tab" class="admin-tab p-6">
+                        <h3 class="text-xl font-semibold mb-6">Agregar Nuevo Negocio</h3>
+                        <form id="business-form" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Negocio *</label>
+                                    <input type="text" id="business-name" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Encargado</label>
+                                    <input type="text" id="business-manager" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                                    <input type="tel" id="business-phone" placeholder="+58 414-123-4567" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" id="business-email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Instagram</label>
+                                    <input type="text" id="business-instagram" placeholder="@usuario" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Facebook</label>
+                                    <input type="text" id="business-facebook" placeholder="https://facebook.com/pagina" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                                    <select id="business-category" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                        <option value="Restaurantes">Restaurantes y Comida</option>
+                                        <option value="Servicios">Servicios Profesionales</option>
+                                        <option value="Comercios">Comercios y Tiendas</option>
+                                        <option value="Salud">Salud y Belleza</option>
+                                        <option value="Educación">Educación</option>
+                                        <option value="Tecnología">Tecnología</option>
+                                        <option value="Construcción">Construcción</option>
+                                        <option value="Transporte">Transporte</option>
+                                        <option value="Entretenimiento">Entretenimiento</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado/Región</label>
+                                    <select id="business-location" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                        <option value="Caracas">Caracas</option>
+                                        <option value="Maracaibo">Maracaibo</option>
+                                        <option value="Valencia">Valencia</option>
+                                        <option value="Barquisimeto">Barquisimeto</option>
+                                        <option value="Maracay">Maracay</option>
+                                        <option value="Ciudad Guayana">Ciudad Guayana</option>
+                                        <option value="Barcelona">Barcelona</option>
+                                        <option value="Mérida">Mérida</option>
+                                        <option value="Internacional">Internacional</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Dirección Completa</label>
+                                <textarea id="business-address" rows="2" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                                <textarea id="business-description" rows="3" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue"></textarea>
+                            </div>
+                            <div class="flex space-x-4">
+                                <button type="submit" class="bg-venezuela-blue text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                                    <i class="fas fa-save mr-2"></i>Guardar Negocio
+                                </button>
+                                <button type="reset" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition">
+                                    <i class="fas fa-undo mr-2"></i>Limpiar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
-            <div class="pagination" id="pagination">
-                <button id="prevPage" class="btn btn-pagination" disabled>
-                    <i class="fas fa-chevron-left"></i> Anterior
-                </button>
-                <span id="pageInfo" class="page-info">Página 1 de 1</span>
-                <button id="nextPage" class="btn btn-pagination">
-                    Siguiente <i class="fas fa-chevron-right"></i>
-                </button>
+                    <!-- Manage Business Tab -->
+                    <div id="manage-business-tab" class="admin-tab hidden p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold">Gestionar Negocios</h3>
+                            <div class="space-x-2">
+                                <button onclick="exportData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                                    <i class="fas fa-download mr-2"></i>Exportar
+                                </button>
+                                <button onclick="importData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                                    <i class="fas fa-upload mr-2"></i>Importar
+                                </button>
+                            </div>
+                        </div>
+                        <div id="business-list" class="space-y-4">
+                            <!-- Business list will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Statistics Tab -->
+                    <div id="statistics-tab" class="admin-tab hidden p-6">
+                        <h3 class="text-xl font-semibold mb-6">Estadísticas del Sitio</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-blue-50 p-6 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Total de Negocios</p>
+                                        <p id="total-businesses" class="text-3xl font-bold text-venezuela-blue">0</p>
+                                    </div>
+                                    <i class="fas fa-store text-4xl text-venezuela-blue opacity-50"></i>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 p-6 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Total "Me Gusta"</p>
+                                        <p id="total-likes" class="text-3xl font-bold text-green-600">0</p>
+                                    </div>
+                                    <i class="fas fa-thumbs-up text-4xl text-green-600 opacity-50"></i>
+                                </div>
+                            </div>
+                            <div class="bg-red-50 p-6 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Categorías Activas</p>
+                                        <p id="active-categories" class="text-3xl font-bold text-venezuela-red">0</p>
+                                    </div>
+                                    <i class="fas fa-tags text-4xl text-venezuela-red opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8">
+                            <h4 class="text-lg font-semibold mb-4">Distribución por Categorías</h4>
+                            <div id="category-stats" class="space-y-2">
+                                <!-- Category statistics will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
 
-    <footer class="main-footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h3 id="footerTitle">Emprendedores Futuro</h3>
-                    <p id="footerText">© 2023 Todos los derechos reservados</p>
+    <!-- Footer -->
+    <footer id="contacto" class="bg-venezuela-blue text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Clasificados Venezuela</h3>
+                    <p class="text-blue-200 mb-4">El directorio más completo de negocios en Venezuela e internacional.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-blue-200 hover:text-white transition">
+                            <i class="fab fa-facebook text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-blue-200 hover:text-white transition">
+                            <i class="fab fa-instagram text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-blue-200 hover:text-white transition">
+                            <i class="fab fa-twitter text-2xl"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="footer-col">
-                    <h4>Contacto</h4>
-                    <a href="#" id="footerWhatsApp" class="footer-link">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </a>
-                    <a href="mailto:contacto@emprendedoresfuturo.com" class="footer-link">
-                        <i class="fas fa-envelope"></i> Email
-                    </a>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Enlaces Rápidos</h4>
+                    <ul class="space-y-2 text-blue-200">
+                        <li><a href="#inicio" class="hover:text-white transition">Inicio</a></li>
+                        <li><a href="#categorias" class="hover:text-white transition">Categorías</a></li>
+                        <li><a href="#" class="hover:text-white transition">Términos de Uso</a></li>
+                        <li><a href="#" class="hover:text-white transition">Privacidad</a></li>
+                    </ul>
                 </div>
-                <div class="footer-col">
-                    <h4>Enlaces</h4>
-                    <a href="#" class="footer-link">Añadir negocio</a>
-                    <a href="#" class="footer-link">Publicidad</a>
-                    <a href="#" class="footer-link">Términos</a>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Categorías</h4>
+                    <ul class="space-y-2 text-blue-200">
+                        <li><a href="#" class="hover:text-white transition">Restaurantes</a></li>
+                        <li><a href="#" class="hover:text-white transition">Servicios</a></li>
+                        <li><a href="#" class="hover:text-white transition">Comercios</a></li>
+                        <li><a href="#" class="hover:text-white transition">Salud y Belleza</a></li>
+                    </ul>
                 </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contacto</h4>
+                    <div class="space-y-2 text-blue-200">
+                        <p><i class="fas fa-envelope mr-2"></i>info@clasificadosvenezuela.com</p>
+                        <p><i class="fas fa-phone mr-2"></i>+58 414-123-4567</p>
+                        <p><i class="fas fa-map-marker-alt mr-2"></i>Caracas, Venezuela</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-blue-700 mt-8 pt-8 text-center text-blue-200">
+                <p>&copy; 2024 Clasificados Venezuela. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Modal para añadir negocio -->
-    <div class="modal" id="addBusinessModal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 class="modal-title">Añadir tu negocio</h2>
-            <form id="businessForm" class="modal-form">
-                <!-- Contenido del formulario -->
-            </form>
-        </div>
-    </div>
+    <!-- Import/Export File Input -->
+    <input type="file" id="import-file" class="hidden" accept=".json" onchange="handleImport()">
 
-    <script src="js/main.js"></script>
+    <script>
+        // Global variables
+        let businesses = [];
+        let currentUser = null;
+        let filteredBusinesses = [];
+        let editingBusinessId = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBusinesses();
+            loadSampleData();
+            displayBusinesses();
+            updateStatistics();
+        });
+
+        // Load businesses from localStorage
+        function loadBusinesses() {
+            const stored = localStorage.getItem('venezuelaBusinesses');
+            if (stored) {
+                businesses = JSON.parse(stored);
+            }
+        }
+
+        // Save businesses to localStorage
+        function saveBusinesses() {
+            localStorage.setItem('venezuelaBusinesses', JSON.stringify(businesses));
+        }
+
+        // Load sample data if no businesses exist
+        function loadSampleData() {
+            if (businesses.length === 0) {
+                businesses = [
+                    {
+                        id: Date.now() + 1,
+                        name: "Restaurante El Avileño",
+                        manager: "María González",
+                        phone: "+58 212-123-4567",
+                        email: "info@elavileno.com",
+                        instagram: "@restauranteavileno",
+                        facebook: "https://facebook.com/restauranteavileno",
+                        address: "Av. Francisco de Miranda, Los Palos Grandes",
+                        location: "Caracas",
+                        category: "Restaurantes",
+                        description: "Comida tradicional venezolana con más de 30 años de tradición.",
+                        likes: 45,
+                        dislikes: 3,
+                        dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: Date.now() + 2,
+                        name: "Consultorio Dental Sonrisa",
+                        manager: "Dr. Carlos Pérez",
+                        phone: "+58 414-987-6543",
+                        email: "citas@sonrisadental.com",
+                        instagram: "@sonrisadental",
+                        facebook: "https://facebook.com/sonrisadental",
+                        address: "Centro Comercial El Recreo, Local 205",
+                        location: "Caracas",
+                        category: "Salud",
+                        description: "Odontología integral con tecnología de vanguardia.",
+                        likes: 32,
+                        dislikes: 1,
+                        dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: Date.now() + 3,
+                        name: "Tech Solutions VE",
+                        manager: "Ana Rodríguez",
+                        phone: "+58 424-555-0123",
+                        email: "contacto@techsolutionsve.com",
+                        instagram: "@techsolutionsve",
+                        facebook: "https://facebook.com/techsolutionsve",
+                        address: "Torre Banesco, Piso 15, Oficina 1502",
+                        location: "Valencia",
+                        category: "Tecnología",
+                        description: "Desarrollo de software y soluciones tecnológicas empresariales.",
+                        likes: 28,
+                        dislikes: 2,
+                        dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: Date.now() + 4,
+                        name: "Boutique Eleganza",
+                        manager: "Isabella Morales",
+                        phone: "+58 261-444-7890",
+                        email: "ventas@boutiqueeleganza.com",
+                        instagram: "@boutiqueeleganza",
+                        facebook: "https://facebook.com/boutiqueeleganza",
+                        address: "Centro Comercial Sambil, Local 387",
+                        location: "Maracaibo",
+                        category: "Comercios",
+                        description: "Moda femenina exclusiva con las últimas tendencias internacionales.",
+                        likes: 67,
+                        dislikes: 5,
+                        dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: Date.now() + 5,
+                        name: "Academia de Idiomas Global",
+                        manager: "Prof. Miguel Torres",
+                        phone: "+58 251-333-2468",
+                        email: "info@academiaidiomas.com",
+                        instagram: "@academiaidiomas",
+                        facebook: "https://facebook.com/academiaidiomas",
+                        address: "Av. Lara con Av. Venezuela, Edificio Torre Empresarial",
+                        location: "Barquisimeto",
+                        category: "Educación",
+                        description: "Enseñanza de inglés, francés, italiano y alemán con profesores nativos.",
+                        likes: 41,
+                        dislikes: 3,
+                        dateAdded: new Date().toISOString()
+                    }
+                ];
+                saveBusinesses();
+            }
+        }
+
+        // Display businesses
+        function displayBusinesses(businessesToShow = businesses) {
+            const grid = document.getElementById('business-grid');
+            const noResults = document.getElementById('no-results');
+            const resultsCount = document.getElementById('results-count');
+            
+            filteredBusinesses = businessesToShow;
+            
+            if (businessesToShow.length === 0) {
+                grid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                resultsCount.textContent = '0 negocios encontrados';
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            resultsCount.textContent = `${businessesToShow.length} negocio${businessesToShow.length !== 1 ? 's' : ''} encontrado${businessesToShow.length !== 1 ? 's' : ''}`;
+            
+            grid.innerHTML = businessesToShow.map(business => `
+                <div class="business-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-venezuela-blue mb-1">${business.name}</h3>
+                                <span class="inline-block bg-venezuela-yellow text-venezuela-blue px-3 py-1 rounded-full text-sm font-medium">
+                                    ${business.category}
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex space-x-2">
+                                    <button onclick="voteBusiness(${business.id}, 'like')" 
+                                            class="like-btn flex items-center space-x-1 px-3 py-1 rounded-full border border-green-300 text-green-600 hover:bg-green-500 hover:text-white transition">
+                                        <i class="fas fa-thumbs-up"></i>
+                                        <span>${business.likes || 0}</span>
+                                    </button>
+                                    <button onclick="voteBusiness(${business.id}, 'dislike')" 
+                                            class="dislike-btn flex items-center space-x-1 px-3 py-1 rounded-full border border-red-300 text-red-600 hover:bg-red-500 hover:text-white transition">
+                                        <i class="fas fa-thumbs-down"></i>
+                                        <span>${business.dislikes || 0}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            ${business.manager ? `<p class="text-gray-600"><i class="fas fa-user mr-2"></i>${business.manager}</p>` : ''}
+                            ${business.phone ? `<p class="text-gray-600"><i class="fas fa-phone mr-2"></i>
+                                <a href="tel:${business.phone}" class="text-venezuela-blue hover:underline">${business.phone}</a></p>` : ''}
+                            ${business.email ? `<p class="text-gray-600"><i class="fas fa-envelope mr-2"></i>
+                                <a href="mailto:${business.email}" class="text-venezuela-blue hover:underline">${business.email}</a></p>` : ''}
+                            <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>${business.location}</p>
+                            ${business.address ? `<p class="text-gray-600 text-sm">${business.address}</p>` : ''}
+                        </div>
+                        
+                        ${business.description ? `<p class="text-gray-600 text-sm mb-4">${business.description}</p>` : ''}
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-3">
+                                ${business.instagram ? `<a href="https://instagram.com/${business.instagram.replace('@', '')}" target="_blank" 
+                                    class="text-pink-500 hover:text-pink-700 transition">
+                                    <i class="fab fa-instagram text-xl"></i>
+                                </a>` : ''}
+                                ${business.facebook ? `<a href="${business.facebook}" target="_blank" 
+                                    class="text-blue-600 hover:text-blue-800 transition">
+                                    <i class="fab fa-facebook text-xl"></i>
+                                </a>` : ''}
+                            </div>
+                            ${business.phone ? `<a href="tel:${business.phone}" 
+                                class="bg-venezuela-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                                <i class="fas fa-phone mr-2"></i>Llamar
+                            </a>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search functionality
+        function performSearch() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filtered = businesses.filter(business => 
+                business.name.toLowerCase().includes(searchTerm) ||
+                business.description.toLowerCase().includes(searchTerm) ||
+                business.category.toLowerCase().includes(searchTerm) ||
+                business.location.toLowerCase().includes(searchTerm) ||
+                (business.manager && business.manager.toLowerCase().includes(searchTerm))
+            );
+            displayBusinesses(filtered);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const locationFilter = document.getElementById('location-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            let filtered = businesses;
+            
+            if (searchTerm) {
+                filtered = filtered.filter(business => 
+                    business.name.toLowerCase().includes(searchTerm) ||
+                    business.description.toLowerCase().includes(searchTerm) ||
+                    business.category.toLowerCase().includes(searchTerm) ||
+                    business.location.toLowerCase().includes(searchTerm) ||
+                    (business.manager && business.manager.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            if (locationFilter) {
+                filtered = filtered.filter(business => business.location === locationFilter);
+            }
+            
+            if (categoryFilter) {
+                filtered = filtered.filter(business => business.category === categoryFilter);
+            }
+            
+            displayBusinesses(filtered);
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            document.getElementById('category-filter').value = category;
+            applyFilters();
+        }
+
+        // Sort businesses
+        function sortBusinesses() {
+            const sortOption = document.getElementById('sort-options').value;
+            let sorted = [...filteredBusinesses];
+            
+            switch(sortOption) {
+                case 'popular':
+                    sorted.sort((a, b) => (b.likes - b.dislikes) - (a.likes - a.dislikes));
+                    break;
+                case 'name':
+                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'location':
+                    sorted.sort((a, b) => a.location.localeCompare(b.location));
+                    break;
+                case 'newest':
+                default:
+                    sorted.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+                    break;
+            }
+            
+            displayBusinesses(sorted);
+        }
+
+        // Vote for business
+        function voteBusiness(businessId, voteType) {
+            const userVotes = JSON.parse(localStorage.getItem('userVotes') || '{}');
+            const voteKey = `${businessId}_${voteType}`;
+            
+            if (userVotes[voteKey]) {
+                alert('Ya has votado por este negocio.');
+                return;
+            }
+            
+            const business = businesses.find(b => b.id === businessId);
+            if (business) {
+                if (voteType === 'like') {
+                    business.likes = (business.likes || 0) + 1;
+                } else {
+                    business.dislikes = (business.dislikes || 0) + 1;
+                }
+                
+                userVotes[voteKey] = true;
+                localStorage.setItem('userVotes', JSON.stringify(userVotes));
+                
+                saveBusinesses();
+                displayBusinesses(filteredBusinesses);
+                updateStatistics();
+            }
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Admin panel functions
+        function toggleAdminPanel() {
+            document.getElementById('admin-overlay').classList.remove('hidden');
+            document.getElementById('admin-login').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('admin-overlay').classList.add('hidden');
+            document.getElementById('admin-password').value = '';
+        }
+
+        function adminLogin() {
+            const password = document.getElementById('admin-password').value;
+            if (password === 'admin123') {
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                showAdminTab('add-business');
+                loadBusinessList();
+                updateStatistics();
+            } else {
+                alert('Contraseña incorrecta');
+            }
+        }
+
+        function showAdminTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('border-venezuela-blue'));
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            event.target.classList.add('border-venezuela-blue');
+            
+            if (tabName === 'manage-business') {
+                loadBusinessList();
+            } else if (tabName === 'statistics') {
+                updateStatistics();
+            }
+        }
+
+        // Business form submission
+        document.getElementById('business-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const businessData = {
+                id: editingBusinessId || Date.now(),
+                name: document.getElementById('business-name').value,
+                manager: document.getElementById('business-manager').value,
+                phone: document.getElementById('business-phone').value,
+                email: document.getElementById('business-email').value,
+                instagram: document.getElementById('business-instagram').value,
+                facebook: document.getElementById('business-facebook').value,
+                address: document.getElementById('business-address').value,
+                location: document.getElementById('business-location').value,
+                category: document.getElementById('business-category').value,
+                description: document.getElementById('business-description').value,
+                likes: 0,
+                dislikes: 0,
+                dateAdded: editingBusinessId ? 
+                    businesses.find(b => b.id === editingBusinessId)?.dateAdded || new Date().toISOString() :
+                    new Date().toISOString()
+            };
+            
+            if (editingBusinessId) {
+                const index = businesses.findIndex(b => b.id === editingBusinessId);
+                if (index !== -1) {
+                    // Preserve existing likes/dislikes
+                    businessData.likes = businesses[index].likes || 0;
+                    businessData.dislikes = businesses[index].dislikes || 0;
+                    businesses[index] = businessData;
+                }
+                editingBusinessId = null;
+            } else {
+                businesses.push(businessData);
+            }
+            
+            saveBusinesses();
+            displayBusinesses();
+            loadBusinessList();
+            updateStatistics();
+            
+            this.reset();
+            alert('Negocio guardado exitosamente!');
+        });
+
+        // Load business list for management
+        function loadBusinessList() {
+            const listContainer = document.getElementById('business-list');
+            listContainer.innerHTML = businesses.map(business => `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-lg">${business.name}</h4>
+                            <p class="text-gray-600">${business.category} - ${business.location}</p>
+                            <p class="text-sm text-gray-500">${business.manager || 'Sin encargado'}</p>
+                            <div class="flex items-center space-x-4 mt-2">
+                                <span class="text-green-600"><i class="fas fa-thumbs-up mr-1"></i>${business.likes || 0}</span>
+                                <span class="text-red-600"><i class="fas fa-thumbs-down mr-1"></i>${business.dislikes || 0}</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editBusiness(${business.id})" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteBusiness(${business.id})" class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Edit business
+        function editBusiness(businessId) {
+            const business = businesses.find(b => b.id === businessId);
+            if (business) {
+                editingBusinessId = businessId;
+                
+                document.getElementById('business-name').value = business.name;
+                document.getElementById('business-manager').value = business.manager || '';
+                document.getElementById('business-phone').value = business.phone || '';
+                document.getElementById('business-email').value = business.email || '';
+                document.getElementById('business-instagram').value = business.instagram || '';
+                document.getElementById('business-facebook').value = business.facebook || '';
+                document.getElementById('business-address').value = business.address || '';
+                document.getElementById('business-location').value = business.location;
+                document.getElementById('business-category').value = business.category;
+                document.getElementById('business-description').value = business.description || '';
+                
+                showAdminTab('add-business');
+            }
+        }
+
+        // Delete business
+        function deleteBusiness(businessId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este negocio?')) {
+                businesses = businesses.filter(b => b.id !== businessId);
+                saveBusinesses();
+                displayBusinesses();
+                loadBusinessList();
+                updateStatistics();
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const totalBusinesses = businesses.length;
+            const totalLikes = businesses.reduce((sum, b) => sum + (b.likes || 0), 0);
+            const categories = [...new Set(businesses.map(b => b.category))];
+            
+            document.getElementById('total-businesses').textContent = totalBusinesses;
+            document.getElementById('total-likes').textContent = totalLikes;
+            document.getElementById('active-categories').textContent = categories.length;
+            
+            // Category statistics
+            const categoryStats = {};
+            businesses.forEach(business => {
+                categoryStats[business.category] = (categoryStats[business.category] || 0) + 1;
+            });
+            
+            const categoryStatsContainer = document.getElementById('category-stats');
+            if (categoryStatsContainer) {
+                categoryStatsContainer.innerHTML = Object.entries(categoryStats)
+                    .sort(([,a], [,b]) => b - a)
+                    .map(([category, count]) => `
+                        <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
+                            <span class="font-medium">${category}</span>
+                            <span class="bg-venezuela-blue text-white px-3 py-1 rounded-full text-sm">${count}</span>
+                        </div>
+                    `).join('');
+            }
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(businesses, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'clasificados_venezuela_backup.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Import data
+        function importData() {
+            document.getElementById('import-file').click();
+        }
+
+        function handleImport() {
+            const file = document.getElementById('import-file').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (Array.isArray(importedData)) {
+                            if (confirm('¿Estás seguro de que quieres importar estos datos? Esto reemplazará todos los datos existentes.')) {
+                                businesses = importedData;
+                                saveBusinesses();
+                                displayBusinesses();
+                                loadBusinessList();
+                                updateStatistics();
+                                alert('Datos importados exitosamente!');
+                            }
+                        } else {
+                            alert('Formato de archivo inválido');
+                        }
+                    } catch (error) {
+                        alert('Error al leer el archivo');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Close admin panel when clicking outside
+        document.getElementById('admin-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAdminPanel();
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
