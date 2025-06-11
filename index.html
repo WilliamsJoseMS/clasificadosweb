@@ -69,6 +69,22 @@
             padding: 2px 4px;
             border-radius: 3px;
         }
+        
+        /* Corrección para el scroll en el panel de administración */
+        .admin-panel-container {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Estilo para el botón de WhatsApp */
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+        }
+        
+        .whatsapp-btn:hover {
+            background-color: #128C7E;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -226,7 +242,7 @@
     <!-- Admin Panel Overlay -->
     <div id="admin-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
         <div class="admin-panel min-h-screen flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl admin-panel-container">
                 <!-- Admin Header -->
                 <div class="bg-venezuela-blue text-white p-6 rounded-t-lg">
                     <div class="flex justify-between items-center">
@@ -248,7 +264,7 @@
                         <button onclick="adminLogin()" class="w-full bg-venezuela-blue text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition">
                             <i class="fas fa-sign-in-alt mr-2"></i>Acceder
                         </button>
-                        <p class="text-sm text-gray-600">Contraseña por defecto: <strong>*********</strong></p>
+                        <p class="text-sm text-gray-600">Contraseña por defecto: <strong>admin123</strong></p>
                     </div>
                 </div>
 
@@ -284,6 +300,10 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
                                     <input type="tel" id="business-phone" placeholder="+58 414-123-4567" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
+                                    <input type="tel" id="business-whatsapp" placeholder="+58 414-123-4567" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
@@ -358,6 +378,11 @@
                                     <i class="fas fa-upload mr-2"></i>Importar
                                 </button>
                             </div>
+                        </div>
+                        <div class="mb-4">
+                            <input type="text" id="business-search" placeholder="Buscar negocios..." 
+                                   class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue"
+                                   oninput="searchBusinesses()">
                         </div>
                         <div id="business-list" class="space-y-4">
                             <!-- Business list will be populated by JavaScript -->
@@ -500,6 +525,7 @@
                         name: "Restaurante El Avileño",
                         manager: "María González",
                         phone: "+58 212-123-4567",
+                        whatsapp: "+58 412-123-4567",
                         email: "info@elavileno.com",
                         instagram: "@restauranteavileno",
                         facebook: "https://facebook.com/restauranteavileno",
@@ -516,6 +542,7 @@
                         name: "Consultorio Dental Sonrisa",
                         manager: "Dr. Carlos Pérez",
                         phone: "+58 414-987-6543",
+                        whatsapp: "+58 414-987-6543",
                         email: "citas@sonrisadental.com",
                         instagram: "@sonrisadental",
                         facebook: "https://facebook.com/sonrisadental",
@@ -532,6 +559,7 @@
                         name: "Tech Solutions VE",
                         manager: "Ana Rodríguez",
                         phone: "+58 424-555-0123",
+                        whatsapp: "+58 424-555-0123",
                         email: "contacto@techsolutionsve.com",
                         instagram: "@techsolutionsve",
                         facebook: "https://facebook.com/techsolutionsve",
@@ -548,6 +576,7 @@
                         name: "Boutique Eleganza",
                         manager: "Isabella Morales",
                         phone: "+58 261-444-7890",
+                        whatsapp: "+58 414-444-7890",
                         email: "ventas@boutiqueeleganza.com",
                         instagram: "@boutiqueeleganza",
                         facebook: "https://facebook.com/boutiqueeleganza",
@@ -564,6 +593,7 @@
                         name: "Academia de Idiomas Global",
                         manager: "Prof. Miguel Torres",
                         phone: "+58 251-333-2468",
+                        whatsapp: "+58 414-333-2468",
                         email: "info@academiaidiomas.com",
                         instagram: "@academiaidiomas",
                         facebook: "https://facebook.com/academiaidiomas",
@@ -628,6 +658,8 @@
                             ${business.manager ? `<p class="text-gray-600"><i class="fas fa-user mr-2"></i>${business.manager}</p>` : ''}
                             ${business.phone ? `<p class="text-gray-600"><i class="fas fa-phone mr-2"></i>
                                 <a href="tel:${business.phone}" class="text-venezuela-blue hover:underline">${business.phone}</a></p>` : ''}
+                            ${business.whatsapp ? `<p class="text-gray-600"><i class="fab fa-whatsapp mr-2 text-green-500"></i>
+                                <a href="https://wa.me/${business.whatsapp.replace(/[^\d+]/g, '')}" target="_blank" class="text-green-600 hover:underline">${business.whatsapp}</a></p>` : ''}
                             ${business.email ? `<p class="text-gray-600"><i class="fas fa-envelope mr-2"></i>
                                 <a href="mailto:${business.email}" class="text-venezuela-blue hover:underline">${business.email}</a></p>` : ''}
                             <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>${business.location}</p>
@@ -647,7 +679,10 @@
                                     <i class="fab fa-facebook text-xl"></i>
                                 </a>` : ''}
                             </div>
-                            ${business.phone ? `<a href="tel:${business.phone}" 
+                            ${business.whatsapp ? `<a href="https://wa.me/${business.whatsapp.replace(/[^\d+]/g, '')}" target="_blank"
+                                class="whatsapp-btn px-4 py-2 rounded-lg transition">
+                                <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+                            </a>` : business.phone ? `<a href="tel:${business.phone}" 
                                 class="bg-venezuela-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                                 <i class="fas fa-phone mr-2"></i>Llamar
                             </a>` : ''}
@@ -668,6 +703,46 @@
                 (business.manager && business.manager.toLowerCase().includes(searchTerm))
             );
             displayBusinesses(filtered);
+        }
+
+        // Search businesses in admin panel
+        function searchBusinesses() {
+            const searchTerm = document.getElementById('business-search').value.toLowerCase();
+            const filtered = businesses.filter(business => 
+                business.name.toLowerCase().includes(searchTerm) ||
+                business.manager?.toLowerCase().includes(searchTerm) ||
+                business.category.toLowerCase().includes(searchTerm) ||
+                business.location.toLowerCase().includes(searchTerm)
+            );
+            renderBusinessList(filtered);
+        }
+
+        // Render business list in admin panel
+        function renderBusinessList(businessesToShow) {
+            const listContainer = document.getElementById('business-list');
+            listContainer.innerHTML = businessesToShow.map(business => `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-lg">${business.name}</h4>
+                            <p class="text-gray-600">${business.category} - ${business.location}</p>
+                            <p class="text-sm text-gray-500">${business.manager || 'Sin encargado'}</p>
+                            <div class="flex items-center space-x-4 mt-2">
+                                <span class="text-green-600"><i class="fas fa-thumbs-up mr-1"></i>${business.likes || 0}</span>
+                                <span class="text-red-600"><i class="fas fa-thumbs-down mr-1"></i>${business.dislikes || 0}</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editBusiness(${business.id})" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteBusiness(${business.id})" class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Apply filters
@@ -776,7 +851,7 @@
 
         function adminLogin() {
             const password = document.getElementById('admin-password').value;
-            if (password === 'Djinns666') {
+            if (password === 'admin123') {
                 document.getElementById('admin-login').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 showAdminTab('add-business');
@@ -812,6 +887,7 @@
                 name: document.getElementById('business-name').value,
                 manager: document.getElementById('business-manager').value,
                 phone: document.getElementById('business-phone').value,
+                whatsapp: document.getElementById('business-whatsapp').value,
                 email: document.getElementById('business-email').value,
                 instagram: document.getElementById('business-instagram').value,
                 facebook: document.getElementById('business-facebook').value,
@@ -850,30 +926,7 @@
 
         // Load business list for management
         function loadBusinessList() {
-            const listContainer = document.getElementById('business-list');
-            listContainer.innerHTML = businesses.map(business => `
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-lg">${business.name}</h4>
-                            <p class="text-gray-600">${business.category} - ${business.location}</p>
-                            <p class="text-sm text-gray-500">${business.manager || 'Sin encargado'}</p>
-                            <div class="flex items-center space-x-4 mt-2">
-                                <span class="text-green-600"><i class="fas fa-thumbs-up mr-1"></i>${business.likes || 0}</span>
-                                <span class="text-red-600"><i class="fas fa-thumbs-down mr-1"></i>${business.dislikes || 0}</span>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button onclick="editBusiness(${business.id})" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteBusiness(${business.id})" class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            renderBusinessList(businesses);
         }
 
         // Edit business
@@ -885,6 +938,7 @@
                 document.getElementById('business-name').value = business.name;
                 document.getElementById('business-manager').value = business.manager || '';
                 document.getElementById('business-phone').value = business.phone || '';
+                document.getElementById('business-whatsapp').value = business.whatsapp || '';
                 document.getElementById('business-email').value = business.email || '';
                 document.getElementById('business-instagram').value = business.instagram || '';
                 document.getElementById('business-facebook').value = business.facebook || '';
