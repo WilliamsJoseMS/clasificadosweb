@@ -3,1058 +3,1682 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clasificados Venezuela - Directorio Nacional e Internacional</title>
+    <title>Clasificados Venezuela PRO - Directorio Nacional e Internacional</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
-        :root {
-            --venezuela-yellow: #FFD700;
-            --venezuela-blue: #1E40AF;
-            --venezuela-red: #DC2626;
-            --venezuela-light-blue: #3B82F6;
+        * {
+            font-family: 'Inter', sans-serif;
         }
         
-        .bg-venezuela-gradient {
-            background: linear-gradient(135deg, var(--venezuela-yellow) 0%, var(--venezuela-light-blue) 100%);
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
-        .text-venezuela-blue { color: var(--venezuela-blue); }
-        .text-venezuela-red { color: var(--venezuela-red); }
-        .bg-venezuela-blue { background-color: var(--venezuela-blue); }
-        .bg-venezuela-red { background-color: var(--venezuela-red); }
-        .bg-venezuela-yellow { background-color: var(--venezuela-yellow); }
-        
-        .business-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+        .gradient-accent {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
         
-        .business-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            border-color: var(--venezuela-light-blue);
+        .gradient-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
         
-        .category-card {
-            transition: all 0.3s ease;
+        .gradient-warning {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
         }
         
-        .category-card:hover {
-            transform: scale(1.05);
-            background-color: var(--venezuela-light-blue);
-            color: white;
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateZ(0);
         }
         
-        .like-btn, .dislike-btn {
-            transition: all 0.2s ease;
-        }
-        
-        .like-btn:hover {
-            background-color: #10B981;
-            color: white;
-        }
-        
-        .dislike-btn:hover {
-            background-color: #EF4444;
-            color: white;
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
         
         .admin-panel {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
-        }
-        
-        .search-highlight {
-            background-color: #FEF3C7;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
-        
-        /* Corrección para el scroll en el panel de administración */
-        .admin-panel-container {
             max-height: 90vh;
             overflow-y: auto;
         }
         
-        /* Estilo para el botón de WhatsApp */
         .whatsapp-btn {
-            background-color: #25D366;
-            color: white;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
         }
         
         .whatsapp-btn:hover {
-            background-color: #128C7E;
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .featured-badge {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            animation: pulse-glow 2s infinite;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            }
+        }
+        
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            margin: 0 auto 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-icon:hover {
+            transform: translateY(-5px) rotate(5deg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stars {
+            color: #fbbf24;
+            filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.3));
+        }
+        
+        .navbar-sticky {
+            backdrop-filter: blur(20px);
+            background: rgba(102, 126, 234, 0.9);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+            padding: 16px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .toast-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(240, 147, 251, 0.6);
+        }
+        
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modern-card {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9));
+            backdrop-filter: blur(20px);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online {
+            background: #10b981;
+        }
+        
+        .status-offline {
+            background: #ef4444;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .loading-spinner {
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-venezuela-gradient shadow-lg sticky top-0 z-50">
+    <header class="gradient-bg text-white sticky top-0 z-50 navbar-sticky">
         <div class="container mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-star text-3xl text-venezuela-blue"></i>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-map-marker-alt text-2xl"></i>
+                    </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-venezuela-blue">Clasificados Venezuela</h1>
-                        <p class="text-sm text-venezuela-blue opacity-80">Directorio Nacional e Internacional</p>
+                        <h1 class="text-2xl font-bold">Clasificados Venezuela PRO</h1>
+                        <div class="flex items-center text-sm opacity-80">
+                            <span class="status-indicator" id="connectionStatus"></span>
+                            <span id="connectionText">Conectando...</span>
+                        </div>
                     </div>
                 </div>
-                <nav class="hidden md:flex space-x-6">
-                    <a href="#inicio" class="text-venezuela-blue hover:text-venezuela-red font-medium transition">Inicio</a>
-                    <a href="#categorias" class="text-venezuela-blue hover:text-venezuela-red font-medium transition">Categorías</a>
-                    <a href="#contacto" class="text-venezuela-blue hover:text-venezuela-red font-medium transition">Contacto</a>
-                    <button onclick="toggleAdminPanel()" class="bg-venezuela-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" onclick="showView('home')" class="nav-link hover:text-yellow-200 transition-all duration-300 font-medium">
+                        <i class="fas fa-home mr-2"></i>Inicio
+                    </a>
+                    <a href="#" onclick="showView('categories')" class="nav-link hover:text-yellow-200 transition-all duration-300 font-medium">
+                        <i class="fas fa-th-large mr-2"></i>Categorías
+                    </a>
+                    <a href="#" onclick="showView('featured')" class="nav-link hover:text-yellow-200 transition-all duration-300 font-medium">
+                        <i class="fas fa-star mr-2"></i>Destacados
+                    </a>
+                    <a href="#" onclick="showView('admin')" class="nav-link hover:text-yellow-200 transition-all duration-300 font-medium">
                         <i class="fas fa-cog mr-2"></i>Admin
-                    </button>
+                    </a>
                 </nav>
-                <button class="md:hidden text-venezuela-blue text-2xl" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-white hover:text-yellow-200 transition-colors">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
             </div>
         </div>
         
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
-            <div class="container mx-auto px-4 py-4 space-y-3">
-                <a href="#inicio" class="block text-venezuela-blue hover:text-venezuela-red">Inicio</a>
-                <a href="#categorias" class="block text-venezuela-blue hover:text-venezuela-red">Categorías</a>
-                <a href="#contacto" class="block text-venezuela-blue hover:text-venezuela-red">Contacto</a>
-                <button onclick="toggleAdminPanel()" class="block w-full text-left bg-venezuela-blue text-white px-4 py-2 rounded-lg">
-                    <i class="fas fa-cog mr-2"></i>Panel Admin
-                </button>
+        <div id="mobileMenu" class="hidden md:hidden glass-effect text-gray-800 shadow-2xl">
+            <div class="px-4 py-4 space-y-3">
+                <a href="#" onclick="showView('home')" class="block py-3 px-4 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all">
+                    <i class="fas fa-home mr-3"></i>Inicio
+                </a>
+                <a href="#" onclick="showView('categories')" class="block py-3 px-4 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all">
+                    <i class="fas fa-th-large mr-3"></i>Categorías
+                </a>
+                <a href="#" onclick="showView('featured')" class="block py-3 px-4 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all">
+                    <i class="fas fa-star mr-3"></i>Destacados
+                </a>
+                <a href="#" onclick="showView('admin')" class="block py-3 px-4 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all">
+                    <i class="fas fa-cog mr-3"></i>Admin
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- Search Section -->
-    <section class="bg-white py-8 shadow-sm">
-        <div class="container mx-auto px-4">
-            <div class="max-w-4xl mx-auto">
-                <h2 class="text-3xl font-bold text-center text-venezuela-blue mb-6">
-                    Encuentra el Mejor Negocio para Ti
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Floating Action Button -->
+    <button class="floating-action flex items-center justify-center" onclick="showView('admin')" title="Agregar Negocio">
+        <i class="fas fa-plus text-white text-xl"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- Home View -->
+        <div id="homeView" class="view fade-in">
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4">
+                    Encuentra tu <span class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">negocio ideal</span>
                 </h2>
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1 relative">
-                        <input 
-                            type="text" 
-                            id="search-input"
-                            placeholder="Buscar negocios, servicios, productos..."
-                            class="w-full px-4 py-3 pl-12 border-2 border-gray-300 rounded-lg focus:border-venezuela-blue focus:outline-none text-lg"
-                            oninput="performSearch()"
-                        >
-                        <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Directorio completo de negocios y servicios en Venezuela e internacional
+                </p>
+            </div>
+
+            <!-- Search Section -->
+            <div class="modern-card rounded-2xl p-8 mb-12 search-container">
+                <div class="flex flex-col lg:flex-row gap-4 mb-6">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="searchInput" placeholder="Buscar negocios, servicios, productos..." 
+                                   class="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent input-focus bg-white">
+                        </div>
                     </div>
-                    <select id="location-filter" class="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-venezuela-blue focus:outline-none bg-white" onchange="applyFilters()">
-                        <option value="">Todas las ubicaciones</option>
-                        <option value="Caracas">Caracas</option>
-                        <option value="Maracaibo">Maracaibo</option>
-                        <option value="Valencia">Valencia</option>
-                        <option value="Barquisimeto">Barquisimeto</option>
-                        <option value="Maracay">Maracay</option>
-                        <option value="Ciudad Guayana">Ciudad Guayana</option>
-                        <option value="Barcelona">Barcelona</option>
-                        <option value="Mérida">Mérida</option>
-                        <option value="Internacional">Internacional</option>
-                    </select>
-                    <select id="category-filter" class="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-venezuela-blue focus:outline-none bg-white" onchange="applyFilters()">
-                        <option value="">Todas las categorías</option>
-                        <option value="Restaurantes">Restaurantes y Comida</option>
-                        <option value="Servicios">Servicios Profesionales</option>
-                        <option value="Comercios">Comercios y Tiendas</option>
-                        <option value="Salud">Salud y Belleza</option>
-                        <option value="Educación">Educación</option>
-                        <option value="Tecnología">Tecnología</option>
-                        <option value="Construcción">Construcción</option>
-                        <option value="Transporte">Transporte</option>
-                        <option value="Entretenimiento">Entretenimiento</option>
-                        <option value="Otros">Otros</option>
-                    </select>
+                    <div class="flex-1">
+                        <select id="categoryFilter" class="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus bg-white">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <select id="locationFilter" class="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus bg-white">
+                            <option value="">Todas las ubicaciones</option>
+                        </select>
+                    </div>
+                    <button onclick="searchBusinesses()" class="px-8 py-4 btn-primary text-white rounded-xl font-medium">
+                        <i class="fas fa-search mr-2"></i>Buscar
+                    </button>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Categories Section -->
-    <section id="categorias" class="py-12">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center text-venezuela-blue mb-8">Categorías Populares</h2>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Restaurantes')">
-                    <i class="fas fa-utensils text-3xl text-venezuela-red mb-3"></i>
-                    <h3 class="font-semibold">Restaurantes</h3>
-                </div>
-                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Servicios')">
-                    <i class="fas fa-briefcase text-3xl text-venezuela-blue mb-3"></i>
-                    <h3 class="font-semibold">Servicios</h3>
-                </div>
-                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Comercios')">
-                    <i class="fas fa-store text-3xl text-green-600 mb-3"></i>
-                    <h3 class="font-semibold">Comercios</h3>
-                </div>
-                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Salud')">
-                    <i class="fas fa-heart text-3xl text-red-500 mb-3"></i>
-                    <h3 class="font-semibold">Salud</h3>
-                </div>
-                <div class="category-card bg-white p-6 rounded-lg shadow-md text-center cursor-pointer" onclick="filterByCategory('Tecnología')">
-                    <i class="fas fa-laptop text-3xl text-blue-600 mb-3"></i>
-                    <h3 class="font-semibold">Tecnología</h3>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sort Options -->
-    <section class="bg-white py-4 border-t border-b">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center space-x-4 mb-4 md:mb-0">
-                    <span class="text-gray-600">Ordenar por:</span>
-                    <select id="sort-options" class="px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue" onchange="sortBusinesses()">
+                
+                <!-- Advanced Filters -->
+                <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200">
+                    <select id="sortFilter" class="px-4 py-2 border border-gray-200 rounded-lg input-focus bg-white">
+                        <option value="name">Ordenar por nombre</option>
+                        <option value="rating">Por valoración</option>
                         <option value="newest">Más recientes</option>
-                        <option value="popular">Más populares</option>
-                        <option value="name">Nombre A-Z</option>
-                        <option value="location">Ubicación</option>
+                        <option value="featured">Destacados primero</option>
                     </select>
-                </div>
-                <div class="text-gray-600">
-                    <span id="results-count">0 negocios encontrados</span>
+                    <select id="priceFilter" class="px-4 py-2 border border-gray-200 rounded-lg input-focus bg-white">
+                        <option value="">Todos los precios</option>
+                        <option value="$">$ - Económico</option>
+                        <option value="$$">$$ - Moderado</option>
+                        <option value="$$$">$$$ - Premium</option>
+                    </select>
+                    <button onclick="clearFilters()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-times mr-2"></i>Limpiar filtros
+                    </button>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Business Listings -->
-    <section class="py-8">
-        <div class="container mx-auto px-4">
-            <div id="business-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Business cards will be populated by JavaScript -->
+            <!-- Quick Categories -->
+            <div class="modern-card rounded-2xl p-8 mb-12">
+                <h3 class="text-2xl font-bold text-gray-800 mb-8 text-center">Categorías Populares</h3>
+                <div id="quickCategories" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Business Listings -->
+            <div class="mb-6 flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-building mr-3 text-purple-600"></i>
+                    <span id="businessCount">0</span> Negocios encontrados
+                </h3>
+                <div class="flex gap-3">
+                    <button onclick="changeView('grid')" id="gridViewBtn" class="p-3 btn-primary text-white rounded-xl">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button onclick="changeView('list')" id="listViewBtn" class="p-3 bg-gray-300 text-gray-600 rounded-xl hover:bg-gray-400 transition-colors">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
             </div>
             
-            <!-- No results message -->
-            <div id="no-results" class="hidden text-center py-12">
-                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-600 mb-2">No se encontraron resultados</h3>
-                <p class="text-gray-500">Prueba con otros términos de búsqueda o filtros</p>
+            <!-- Loading Skeleton -->
+            <div id="loadingSkeleton" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="skeleton rounded-2xl h-64"></div>
+                <div class="skeleton rounded-2xl h-64"></div>
+                <div class="skeleton rounded-2xl h-64"></div>
+            </div>
+            
+            <div id="businessListings" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Business cards will be populated by JavaScript -->
             </div>
         </div>
-    </section>
 
-    <!-- Admin Panel Overlay -->
-    <div id="admin-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-        <div class="admin-panel min-h-screen flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl admin-panel-container">
-                <!-- Admin Header -->
-                <div class="bg-venezuela-blue text-white p-6 rounded-t-lg">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-2xl font-bold">
-                            <i class="fas fa-cog mr-3"></i>Panel de Administración
-                        </h2>
-                        <button onclick="closeAdminPanel()" class="text-white hover:text-gray-300 text-2xl">
-                            <i class="fas fa-times"></i>
-                        </button>
+        <!-- Categories View -->
+        <div id="categoriesView" class="view hidden fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Todas las Categorías</h2>
+                <p class="text-xl text-gray-600">Explora negocios por categoría</p>
+            </div>
+            <div id="allCategories" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- All categories will be populated here -->
+            </div>
+        </div>
+
+        <!-- Featured View -->
+        <div id="featuredView" class="view hidden fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-star text-yellow-500 mr-3"></i>Negocios Destacados
+                </h2>
+                <p class="text-xl text-gray-600">Los mejores negocios seleccionados especialmente</p>
+            </div>
+            <div id="featuredBusinesses" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Featured businesses will be populated here -->
+            </div>
+        </div>
+
+        <!-- Admin View -->
+        <div id="adminView" class="view hidden fade-in">
+            <!-- Admin Login -->
+            <div id="adminLogin" class="max-w-md mx-auto modern-card rounded-2xl p-8">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cog text-3xl text-white"></i>
                     </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Panel de Administración</h2>
+                    <p class="text-gray-600 mt-2">Gestiona tu directorio de negocios</p>
                 </div>
-
-                <!-- Admin Login -->
-                <div id="admin-login" class="p-6">
-                    <h3 class="text-xl font-semibold mb-4">Acceso de Administrador</h3>
-                    <div class="space-y-4">
-                        <input type="password" id="admin-password" placeholder="Contraseña de administrador" 
-                               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:border-venezuela-blue">
-                        <button onclick="adminLogin()" class="w-full bg-venezuela-blue text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition">
-                            <i class="fas fa-sign-in-alt mr-2"></i>Acceder
-                        </button>
-                        <p class="text-sm text-gray-600">Contraseña por defecto: <strong>admin123</strong></p>
-                    </div>
+                <div class="space-y-6">
+                    <input type="password" id="adminPassword" placeholder="Contraseña de administrador" 
+                           class="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus">
+                    <button onclick="adminLogin()" class="w-full btn-primary text-white py-4 rounded-xl font-medium">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Ingresar
+                    </button>
                 </div>
+            </div>
 
-                <!-- Admin Dashboard -->
-                <div id="admin-dashboard" class="hidden">
-                    <div class="border-b">
-                        <nav class="flex space-x-8 px-6">
-                            <button onclick="showAdminTab('add-business')" class="admin-tab-btn py-4 border-b-2 border-transparent hover:border-venezuela-blue">
-                                <i class="fas fa-plus mr-2"></i>Agregar Negocio
+            <!-- Admin Dashboard -->
+            <div id="adminDashboard" class="hidden">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Admin Sidebar -->
+                    <div class="lg:w-80 modern-card rounded-2xl p-6">
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-user-shield text-2xl text-white"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800">Panel de Control</h3>
+                            <p class="text-sm text-gray-600">Administrador</p>
+                        </div>
+                        <nav class="space-y-3">
+                            <button onclick="showAdminSection('dashboard')" class="admin-nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-purple-50 transition-all font-medium">
+                                <i class="fas fa-chart-dashboard mr-3 text-purple-600"></i>Dashboard
                             </button>
-                            <button onclick="showAdminTab('manage-business')" class="admin-tab-btn py-4 border-b-2 border-transparent hover:border-venezuela-blue">
-                                <i class="fas fa-list mr-2"></i>Gestionar Negocios
+                            <button onclick="showAdminSection('businesses')" class="admin-nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-purple-50 transition-all font-medium">
+                                <i class="fas fa-building mr-3 text-blue-600"></i>Gestionar Negocios
                             </button>
-                            <button onclick="showAdminTab('statistics')" class="admin-tab-btn py-4 border-b-2 border-transparent hover:border-venezuela-blue">
-                                <i class="fas fa-chart-bar mr-2"></i>Estadísticas
+                            <button onclick="showAdminSection('add')" class="admin-nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-purple-50 transition-all font-medium">
+                                <i class="fas fa-plus mr-3 text-green-600"></i>Agregar Negocio
+                            </button>
+                            <button onclick="showAdminSection('categories')" class="admin-nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-purple-50 transition-all font-medium">
+                                <i class="fas fa-tags mr-3 text-orange-600"></i>Categorías
+                            </button>
+                            <button onclick="showAdminSection('sync')" class="admin-nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-purple-50 transition-all font-medium">
+                                <i class="fas fa-cloud mr-3 text-indigo-600"></i>Sincronización
+                            </button>
+                            <button onclick="adminLogout()" class="w-full text-left px-4 py-3 rounded-xl hover:bg-red-50 text-red-600 transition-all font-medium">
+                                <i class="fas fa-sign-out-alt mr-3"></i>Cerrar Sesión
                             </button>
                         </nav>
                     </div>
 
-                    <!-- Add Business Tab -->
-                    <div id="add-business-tab" class="admin-tab p-6">
-                        <h3 class="text-xl font-semibold mb-6">Agregar Nuevo Negocio</h3>
-                        <form id="business-form" class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Negocio *</label>
-                                    <input type="text" id="business-name" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                    <!-- Admin Content -->
+                    <div class="flex-1 admin-panel">
+                        <!-- Dashboard Section -->
+                        <div id="dashboardSection" class="admin-section modern-card rounded-2xl p-8">
+                            <h3 class="text-3xl font-bold text-gray-800 mb-8">Dashboard</h3>
+                            
+                            <!-- Stats Cards -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                                <div class="gradient-bg text-white p-6 rounded-2xl card-hover">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mr-4">
+                                            <i class="fas fa-building text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-3xl font-bold" id="totalBusinesses">0</div>
+                                            <div class="text-sm opacity-80">Total Negocios</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Encargado</label>
-                                    <input type="text" id="business-manager" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                <div class="gradient-success text-white p-6 rounded-2xl card-hover">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mr-4">
+                                            <i class="fas fa-star text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-3xl font-bold" id="featuredBusinessesCount">0</div>
+                                            <div class="text-sm opacity-80">Destacados</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                                    <input type="tel" id="business-phone" placeholder="+58 414-123-4567" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
+                                <div class="gradient-accent text-white p-6 rounded-2xl card-hover">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mr-4">
+                                            <i class="fas fa-tags text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-3xl font-bold" id="totalCategories">0</div>
+                                            <div class="text-sm opacity-80">Categorías</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
-                                    <input type="tel" id="business-whatsapp" placeholder="+58 414-123-4567" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                    <input type="email" id="business-email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Instagram</label>
-                                    <input type="text" id="business-instagram" placeholder="@usuario" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Facebook</label>
-                                    <input type="text" id="business-facebook" placeholder="https://facebook.com/pagina" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
-                                    <select id="business-category" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
-                                        <option value="Restaurantes">Restaurantes y Comida</option>
-                                        <option value="Servicios">Servicios Profesionales</option>
-                                        <option value="Comercios">Comercios y Tiendas</option>
-                                        <option value="Salud">Salud y Belleza</option>
-                                        <option value="Educación">Educación</option>
-                                        <option value="Tecnología">Tecnología</option>
-                                        <option value="Construcción">Construcción</option>
-                                        <option value="Transporte">Transporte</option>
-                                        <option value="Entretenimiento">Entretenimiento</option>
-                                        <option value="Otros">Otros</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado/Región</label>
-                                    <select id="business-location" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue">
-                                        <option value="Caracas">Caracas</option>
-                                        <option value="Maracaibo">Maracaibo</option>
-                                        <option value="Valencia">Valencia</option>
-                                        <option value="Barquisimeto">Barquisimeto</option>
-                                        <option value="Maracay">Maracay</option>
-                                        <option value="Ciudad Guayana">Ciudad Guayana</option>
-                                        <option value="Barcelona">Barcelona</option>
-                                        <option value="Mérida">Mérida</option>
-                                        <option value="Internacional">Internacional</option>
-                                    </select>
+                                <div class="gradient-warning text-gray-800 p-6 rounded-2xl card-hover">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-white bg-opacity-60 rounded-xl flex items-center justify-center mr-4">
+                                            <i class="fas fa-thumbs-up text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-3xl font-bold" id="totalLikes">0</div>
+                                            <div class="text-sm opacity-80">Total Me Gusta</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Dirección Completa</label>
-                                <textarea id="business-address" rows="2" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                                <textarea id="business-description" rows="3" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue"></textarea>
-                            </div>
-                            <div class="flex space-x-4">
-                                <button type="submit" class="bg-venezuela-blue text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-                                    <i class="fas fa-save mr-2"></i>Guardar Negocio
-                                </button>
-                                <button type="reset" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition">
-                                    <i class="fas fa-undo mr-2"></i>Limpiar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
 
-                    <!-- Manage Business Tab -->
-                    <div id="manage-business-tab" class="admin-tab hidden p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xl font-semibold">Gestionar Negocios</h3>
-                            <div class="space-x-2">
-                                <button onclick="exportData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                                    <i class="fas fa-download mr-2"></i>Exportar
-                                </button>
-                                <button onclick="importData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                                    <i class="fas fa-upload mr-2"></i>Importar
-                                </button>
+                            <!-- Charts -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                    <h4 class="font-bold text-gray-800 mb-6 text-lg">Negocios por Categoría</h4>
+                                    <div style="height: 300px;">
+                                        <canvas id="categoryChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                    <h4 class="font-bold text-gray-800 mb-6 text-lg">Valoraciones</h4>
+                                    <div style="height: 300px;">
+                                        <canvas id="ratingsChart"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-4">
-                            <input type="text" id="business-search" placeholder="Buscar negocios..." 
-                                   class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-venezuela-blue"
-                                   oninput="searchBusinesses()">
-                        </div>
-                        <div id="business-list" class="space-y-4">
-                            <!-- Business list will be populated by JavaScript -->
-                        </div>
-                    </div>
 
-                    <!-- Statistics Tab -->
-                    <div id="statistics-tab" class="admin-tab hidden p-6">
-                        <h3 class="text-xl font-semibold mb-6">Estadísticas del Sitio</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="bg-blue-50 p-6 rounded-lg">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm text-gray-600">Total de Negocios</p>
-                                        <p id="total-businesses" class="text-3xl font-bold text-venezuela-blue">0</p>
+                        <!-- Add Business Section -->
+                        <div id="addSection" class="admin-section hidden modern-card rounded-2xl p-8">
+                            <div class="mb-8">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-2">Agregar Nuevo Negocio</h3>
+                                <p class="text-gray-600">Completa la información del negocio</p>
+                            </div>
+                            
+                            <form id="businessForm" class="space-y-8">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    <!-- Basic Information -->
+                                    <div class="space-y-6">
+                                        <h4 class="font-bold text-gray-700 text-lg border-b border-gray-200 pb-2">Información Básica</h4>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Negocio *</label>
+                                            <input type="text" id="businessName" required
+                                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Encargado/Contacto</label>
+                                            <input type="text" id="contactName"
+                                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Categoría *</label>
+                                            <select id="businessCategory" required
+                                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus">
+                                                <option value="">Seleccionar categoría</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                                            <textarea id="businessDescription" rows="4"
+                                                      class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus"></textarea>
+                                        </div>
                                     </div>
-                                    <i class="fas fa-store text-4xl text-venezuela-blue opacity-50"></i>
+
+                                    <!-- Contact Information -->
+                                    <div class="space-y-6">
+                                        <h4 class="font-bold text-gray-700 text-lg border-b border-gray-200 pb-2">Información de Contacto</h4>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono Principal</label>
+                                            <input type="tel" id="businessPhone"
+                                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus"
+                                                   placeholder="+58 xxx-xxx-xxxx">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
+                                            <input type="tel" id="businessWhatsapp"
+                                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus"
+                                                   placeholder="+58 xxx-xxx-xxxx">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                            <input type="email" id="businessEmail"
+                                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Instagram</label>
+                                            <input type="text" id="businessInstagram"
+                                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus"
+                                                   placeholder="@usuario">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Location and Additional Info -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    <div class="space-y-6">
+                                        <h4 class="font-bold text-gray-700 text-lg border-b border-gray-200 pb-2">Ubicación</h4>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Estado/Región</label>
+                                            <select id="businessState"
+                                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus">
+                                                <option value="">Seleccionar estado</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Ciudad</label>
+                                            <input type="text" id="businessCity"
+                                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
+                                            <textarea id="businessAddress" rows="3"
+                                                      class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-6">
+                                        <h4 class="font-bold text-gray-700 text-lg border-b border-gray-200 pb-2">Información Adicional</h4>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Horarios de Atención</label>
+                                            <textarea id="businessHours" rows="3"
+                                                      class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus"
+                                                      placeholder="Ej: Lun-Vie 8:00-18:00"></textarea>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Servicios que Ofrece</label>
+                                            <textarea id="businessServices" rows="3"
+                                                      class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus"></textarea>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Rango de Precios</label>
+                                            <select id="businessPriceRange"
+                                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 input-focus">
+                                                <option value="">No especificado</option>
+                                                <option value="$">$ - Económico</option>
+                                                <option value="$$">$$ - Moderado</option>
+                                                <option value="$$$">$$$ - Premium</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="businessFeatured" class="w-4 h-4 text-purple-600 mr-3 rounded">
+                                            <label class="text-sm font-medium text-gray-700">Negocio Destacado</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end space-x-4 pt-8 border-t border-gray-200">
+                                    <button type="button" onclick="clearForm()" 
+                                            class="px-8 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium">
+                                        Limpiar
+                                    </button>
+                                    <button type="submit" 
+                                            class="px-8 py-3 btn-primary text-white rounded-xl font-medium">
+                                        <i class="fas fa-save mr-2"></i>Guardar Negocio
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Manage Businesses Section -->
+                        <div id="businessesSection" class="admin-section hidden modern-card rounded-2xl p-8">
+                            <div class="flex justify-between items-center mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-800 mb-2">Gestionar Negocios</h3>
+                                    <p class="text-gray-600">Administra todos los negocios registrados</p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <input type="text" id="adminSearchInput" placeholder="Buscar negocios..." 
+                                           class="px-4 py-2 border border-gray-200 rounded-xl input-focus">
+                                    <button onclick="refreshBusinessList()" class="px-4 py-2 btn-primary text-white rounded-xl">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="bg-green-50 p-6 rounded-lg">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm text-gray-600">Total "Me Gusta"</p>
-                                        <p id="total-likes" class="text-3xl font-bold text-green-600">0</p>
-                                    </div>
-                                    <i class="fas fa-thumbs-up text-4xl text-green-600 opacity-50"></i>
-                                </div>
-                            </div>
-                            <div class="bg-red-50 p-6 rounded-lg">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm text-gray-600">Categorías Activas</p>
-                                        <p id="active-categories" class="text-3xl font-bold text-venezuela-red">0</p>
-                                    </div>
-                                    <i class="fas fa-tags text-4xl text-venezuela-red opacity-50"></i>
-                                </div>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="bg-gray-50">
+                                            <th class="px-6 py-4 text-left font-medium text-gray-700 rounded-l-xl">Negocio</th>
+                                            <th class="px-6 py-4 text-left font-medium text-gray-700">Categoría</th>
+                                            <th class="px-6 py-4 text-left font-medium text-gray-700">Ubicación</th>
+                                            <th class="px-6 py-4 text-left font-medium text-gray-700">Valoración</th>
+                                            <th class="px-6 py-4 text-left font-medium text-gray-700">Estado</th>
+                                            <th class="px-6 py-4 text-left font-medium text-gray-700 rounded-r-xl">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="businessTableBody" class="divide-y divide-gray-100">
+                                        <!-- Business rows will be populated here -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <div class="mt-8">
-                            <h4 class="text-lg font-semibold mb-4">Distribución por Categorías</h4>
-                            <div id="category-stats" class="space-y-2">
-                                <!-- Category statistics will be populated by JavaScript -->
+
+                        <!-- Categories Section -->
+                        <div id="categoriesSection" class="admin-section hidden modern-card rounded-2xl p-8">
+                            <h3 class="text-3xl font-bold text-gray-800 mb-8">Gestión de Categorías</h3>
+                            <div id="categoryManagement">
+                                <p class="text-gray-600">Gestión de categorías en desarrollo...</p>
+                            </div>
+                        </div>
+
+                        <!-- Sync Section -->
+                        <div id="syncSection" class="admin-section hidden modern-card rounded-2xl p-8">
+                            <div class="mb-8">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-2">Sincronización en Tiempo Real</h3>
+                                <p class="text-gray-600">Sincronización automática activada con Firebase</p>
+                            </div>
+                            
+                            <div class="space-y-8">
+                                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+                                    <h4 class="font-bold text-blue-800 mb-4 flex items-center">
+                                        <i class="fas fa-cloud mr-3"></i>Estado de Conexión
+                                    </h4>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="status-indicator" id="syncConnectionStatus"></div>
+                                        <span class="text-blue-700 font-medium" id="syncConnectionText">Conectando...</span>
+                                    </div>
+                                    <p class="text-sm text-blue-600 mt-3">
+                                        Los cambios se sincronizan automáticamente entre todos los usuarios
+                                    </p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-green-50 border border-green-200 rounded-2xl p-6">
+                                        <h4 class="font-bold text-green-800 mb-3">
+                                            <i class="fas fa-check-circle mr-2"></i>Funciones Activas
+                                        </h4>
+                                        <ul class="text-green-700 space-y-2">
+                                            <li><i class="fas fa-dot-circle mr-2"></i>Sincronización automática</li>
+                                            <li><i class="fas fa-dot-circle mr-2"></i>Actualizaciones en tiempo real</li>
+                                            <li><i class="fas fa-dot-circle mr-2"></i>Base de datos en la nube</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="bg-purple-50 border border-purple-200 rounded-2xl p-6">
+                                        <h4 class="font-bold text-purple-800 mb-3">
+                                            <i class="fas fa-database mr-2"></i>Fuente de Datos
+                                        </h4>
+                                        <div class="text-purple-700">
+                                            <div class="text-lg font-bold">Firebase Realtime DB</div>
+                                            <div class="text-sm">Activa y Sincronizando</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <button onclick="exportData()" class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium">
+                                        <i class="fas fa-download mr-2"></i>Exportar Datos
+                                    </button>
+                                    <button onclick="clearAllData()" class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium">
+                                        <i class="fas fa-trash mr-2"></i>Limpiar Negocios
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-map-marker-alt text-2xl text-white"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Clasificados Venezuela PRO</h3>
+                <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                    Conectando negocios en toda Venezuela e internacional. 
+                    Plataforma moderna con sincronización en tiempo real.
+                </p>
+                <div class="flex justify-center space-x-8 text-sm">
+                    <a href="#" class="hover:text-purple-400 transition-colors">Términos de Uso</a>
+                    <a href="#" class="hover:text-purple-400 transition-colors">Privacidad</a>
+                    <a href="#" class="hover:text-purple-400 transition-colors">Contacto</a>
+                    <a href="#" class="hover:text-purple-400 transition-colors">Ayuda</a>
+                </div>
+                <div class="mt-8 pt-8 border-t border-gray-800">
+                    <p class="text-gray-500 text-sm">
+                        © 2024 Clasificados Venezuela PRO. Todos los derechos reservados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Business Detail Modal -->
+    <div id="businessModal" class="fixed inset-0 modal-backdrop hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="modern-card rounded-2xl shadow-2xl max-w-2xl w-full max-h-90vh overflow-y-auto">
+                <div id="businessModalContent">
+                    <!-- Modal content will be populated here -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer id="contacto" class="bg-venezuela-blue text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Clasificados Venezuela</h3>
-                    <p class="text-blue-200 mb-4">El directorio más completo de negocios en Venezuela e internacional.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-blue-200 hover:text-white transition">
-                            <i class="fab fa-facebook text-2xl"></i>
-                        </a>
-                        <a href="#" class="text-blue-200 hover:text-white transition">
-                            <i class="fab fa-instagram text-2xl"></i>
-                        </a>
-                        <a href="#" class="text-blue-200 hover:text-white transition">
-                            <i class="fab fa-twitter text-2xl"></i>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Enlaces Rápidos</h4>
-                    <ul class="space-y-2 text-blue-200">
-                        <li><a href="#inicio" class="hover:text-white transition">Inicio</a></li>
-                        <li><a href="#categorias" class="hover:text-white transition">Categorías</a></li>
-                        <li><a href="#" class="hover:text-white transition">Términos de Uso</a></li>
-                        <li><a href="#" class="hover:text-white transition">Privacidad</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Categorías</h4>
-                    <ul class="space-y-2 text-blue-200">
-                        <li><a href="#" class="hover:text-white transition">Restaurantes</a></li>
-                        <li><a href="#" class="hover:text-white transition">Servicios</a></li>
-                        <li><a href="#" class="hover:text-white transition">Comercios</a></li>
-                        <li><a href="#" class="hover:text-white transition">Salud y Belleza</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Contacto</h4>
-                    <div class="space-y-2 text-blue-200">
-                        <p><i class="fas fa-envelope mr-2"></i>info@clasificadosvenezuela.com</p>
-                        <p><i class="fas fa-phone mr-2"></i>+58 414-123-4567</p>
-                        <p><i class="fas fa-map-marker-alt mr-2"></i>Caracas, Venezuela</p>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-blue-700 mt-8 pt-8 text-center text-blue-200">
-                <p>&copy; 2024 Clasificados Venezuela. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Import/Export File Input -->
-    <input type="file" id="import-file" class="hidden" accept=".json" onchange="handleImport()">
-
     <script>
+        // N. del programador: ¡Aquí está tu configuración personal de Firebase!
+        const firebaseConfig = {
+            apiKey: "AIzaSyCl-tYbsmVZRWzOMWDaCxY2pHU-hsAmMWk",
+            authDomain: "clasificadosweb-5260e.firebaseapp.com",
+            databaseURL: "https://clasificadosweb-5260e-default-rtdb.firebaseio.com",
+            projectId: "clasificadosweb-5260e",
+            storageBucket: "clasificadosweb-5260e.appspot.com",
+            messagingSenderId: "655481395382",
+            appId: "1:655481395382:web:d0daefb0f42ae165476e17"
+        };
+
         // Global variables
         let businesses = [];
-        let currentUser = null;
-        let filteredBusinesses = [];
-        let editingBusinessId = null;
+        let categories = [];
+        let currentView = 'grid';
+        let isAdminLoggedIn = false;
+        let currentEditingId = null;
+        let database = null;
+        let isConnected = false;
+        let categoryChartInstance = null;
+        let ratingsChartInstance = null;
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            loadBusinesses();
-            loadSampleData();
-            displayBusinesses();
-            updateStatistics();
+            initializeApp();
         });
 
-        // Load businesses from localStorage
-        function loadBusinesses() {
-            const stored = localStorage.getItem('venezuelaBusinesses');
-            if (stored) {
-                businesses = JSON.parse(stored);
+        // N. del programador: La función de inicialización ahora es más simple y depende 100% de Firebase.
+        function initializeApp() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+                setupRealtimeSync(); // Esta es la función clave que carga los datos y escucha los cambios.
+            } catch (error) {
+                console.error('Error al conectar con Firebase:', error);
+                showToast('No se pudo conectar a la base de datos.', 'error');
+                updateConnectionStatus(false);
+            }
+            
+            setupEventListeners();
+            populateStates(); // Esto no depende de la base de datos, así que se queda.
+        }
+
+        // N. del programador: Esta función ahora es el corazón de la aplicación. Escucha los cambios
+        // en la base de datos en tiempo real y actualiza la interfaz para todos los usuarios.
+        function setupRealtimeSync() {
+            if (!database) return;
+            
+            database.ref('.info/connected').on('value', (snapshot) => {
+                isConnected = snapshot.val();
+                updateConnectionStatus(isConnected);
+            });
+
+            // Escucha CUALQUIER cambio en el nodo 'businesses' de la base de datos.
+            database.ref('businesses').on('value', (snapshot) => {
+                showLoadingSkeleton(); // Muestra el esqueleto mientras procesamos.
+                if (snapshot.exists()) {
+                    const dataFromFirebase = snapshot.val();
+                    // Firebase devuelve un objeto, lo convertimos a un array que nuestro código ya sabe manejar.
+                    businesses = Object.keys(dataFromFirebase).map(key => ({ 
+                        id: key, // El ID único que Firebase genera (ej. -NqXyZ...) es ahora el id del negocio.
+                        ...dataFromFirebase[key] 
+                    }));
+                } else {
+                    businesses = []; // Si no hay negocios en la DB, el array se vacía.
+                }
+                
+                // Una vez que tenemos los datos, actualizamos toda la interfaz.
+                // Esto se ejecuta automáticamente cada vez que agregas, editas o eliminas un negocio.
+                displayBusinesses();
+                updateStats();
+                if (isAdminLoggedIn) {
+                    refreshBusinessList();
+                    updateCharts();
+                }
+            });
+
+            // Hacemos lo mismo para las categorías.
+            database.ref('categories').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const dataFromFirebase = snapshot.val();
+                    categories = Object.keys(dataFromFirebase).map(key => ({ id: key, ...dataFromFirebase[key] }));
+                } else {
+                    // Si no hay categorías en la DB (primer uso), las creamos y las guardamos.
+                    console.log("No hay categorías en Firebase, creando las de por defecto...");
+                    initializeDefaultCategories(); 
+                    
+                    const categoriesToSave = {};
+                    categories.forEach(cat => {
+                        // Firebase prefiere objetos, así que usamos el 'id' de la categoría como clave.
+                        categoriesToSave[cat.id] = { name: cat.name, icon: cat.icon, color: cat.color };
+                    });
+                    database.ref('categories').set(categoriesToSave);
+                }
+                populateCategories();
+            });
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusIndicator = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionText');
+            const syncStatusIndicator = document.getElementById('syncConnectionStatus');
+            const syncStatusText = document.getElementById('syncConnectionText');
+
+            const onlineClass = 'status-indicator status-online';
+            const offlineClass = 'status-indicator status-offline';
+            const onlineText = 'Conectado';
+            const offlineText = 'Sin conexión';
+            
+            if (connected) {
+                if (statusIndicator) statusIndicator.className = onlineClass;
+                if (statusText) statusText.textContent = onlineText;
+                if (syncStatusIndicator) syncStatusIndicator.className = onlineClass;
+                if (syncStatusText) syncStatusText.textContent = onlineText;
+            } else {
+                if (statusIndicator) statusIndicator.className = offlineClass;
+                if (statusText) statusText.textContent = offlineText;
+                if (syncStatusIndicator) syncStatusIndicator.className = offlineClass;
+                if (syncStatusText) syncStatusText.textContent = offlineText;
+                showToast('Conexión perdida. Intentando reconectar...', 'error');
             }
         }
 
-        // Save businesses to localStorage
-        function saveBusinesses() {
-            localStorage.setItem('venezuelaBusinesses', JSON.stringify(businesses));
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-3"></i>
+                        <span>${message}</span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, duration);
         }
 
-        // Load sample data if no businesses exist
-        function loadSampleData() {
-            if (businesses.length === 0) {
-                businesses = [
-                    {
-                        id: Date.now() + 1,
-                        name: "Restaurante El Avileño",
-                        manager: "María González",
-                        phone: "+58 212-123-4567",
-                        whatsapp: "+58 412-123-4567",
-                        email: "info@elavileno.com",
-                        instagram: "@restauranteavileno",
-                        facebook: "https://facebook.com/restauranteavileno",
-                        address: "Av. Francisco de Miranda, Los Palos Grandes",
-                        location: "Caracas",
-                        category: "Restaurantes",
-                        description: "Comida tradicional venezolana con más de 30 años de tradición.",
-                        likes: 45,
-                        dislikes: 3,
-                        dateAdded: new Date().toISOString()
-                    },
-                    {
-                        id: Date.now() + 2,
-                        name: "Consultorio Dental Sonrisa",
-                        manager: "Dr. Carlos Pérez",
-                        phone: "+58 414-987-6543",
-                        whatsapp: "+58 414-987-6543",
-                        email: "citas@sonrisadental.com",
-                        instagram: "@sonrisadental",
-                        facebook: "https://facebook.com/sonrisadental",
-                        address: "Centro Comercial El Recreo, Local 205",
-                        location: "Caracas",
-                        category: "Salud",
-                        description: "Odontología integral con tecnología de vanguardia.",
-                        likes: 32,
-                        dislikes: 1,
-                        dateAdded: new Date().toISOString()
-                    },
-                    {
-                        id: Date.now() + 3,
-                        name: "Tech Solutions VE",
-                        manager: "Ana Rodríguez",
-                        phone: "+58 424-555-0123",
-                        whatsapp: "+58 424-555-0123",
-                        email: "contacto@techsolutionsve.com",
-                        instagram: "@techsolutionsve",
-                        facebook: "https://facebook.com/techsolutionsve",
-                        address: "Torre Banesco, Piso 15, Oficina 1502",
-                        location: "Valencia",
-                        category: "Tecnología",
-                        description: "Desarrollo de software y soluciones tecnológicas empresariales.",
-                        likes: 28,
-                        dislikes: 2,
-                        dateAdded: new Date().toISOString()
-                    },
-                    {
-                        id: Date.now() + 4,
-                        name: "Boutique Eleganza",
-                        manager: "Isabella Morales",
-                        phone: "+58 261-444-7890",
-                        whatsapp: "+58 414-444-7890",
-                        email: "ventas@boutiqueeleganza.com",
-                        instagram: "@boutiqueeleganza",
-                        facebook: "https://facebook.com/boutiqueeleganza",
-                        address: "Centro Comercial Sambil, Local 387",
-                        location: "Maracaibo",
-                        category: "Comercios",
-                        description: "Moda femenina exclusiva con las últimas tendencias internacionales.",
-                        likes: 67,
-                        dislikes: 5,
-                        dateAdded: new Date().toISOString()
-                    },
-                    {
-                        id: Date.now() + 5,
-                        name: "Academia de Idiomas Global",
-                        manager: "Prof. Miguel Torres",
-                        phone: "+58 251-333-2468",
-                        whatsapp: "+58 414-333-2468",
-                        email: "info@academiaidiomas.com",
-                        instagram: "@academiaidiomas",
-                        facebook: "https://facebook.com/academiaidiomas",
-                        address: "Av. Lara con Av. Venezuela, Edificio Torre Empresarial",
-                        location: "Barquisimeto",
-                        category: "Educación",
-                        description: "Enseñanza de inglés, francés, italiano y alemán con profesores nativos.",
-                        likes: 41,
-                        dislikes: 3,
-                        dateAdded: new Date().toISOString()
-                    }
-                ];
-                saveBusinesses();
+        // N. del programador: Esta función ya no es necesaria, la lógica de guardado está en cada acción (agregar, editar, etc.).
+        // function syncData() {}
+
+        // N. del programador: Esta función ya no se usa para cargar datos, Firebase lo hace.
+        // function loadData() {}
+
+        function initializeDefaultCategories() {
+            categories = [
+                { id: 'restaurantes', name: 'Restaurantes y Comida', icon: 'fas fa-utensils', color: '#ef4444' },
+                { id: 'servicios', name: 'Servicios Profesionales', icon: 'fas fa-briefcase', color: '#3b82f6' },
+                { id: 'comercios', name: 'Comercios y Tiendas', icon: 'fas fa-store', color: '#10b981' },
+                { id: 'salud', name: 'Salud y Belleza', icon: 'fas fa-heart', color: '#f59e0b' },
+                { id: 'educacion', name: 'Educación y Formación', icon: 'fas fa-graduation-cap', color: '#8b5cf6' },
+                { id: 'tecnologia', name: 'Tecnología e Informática', icon: 'fas fa-laptop', color: '#06b6d4' },
+                { id: 'construccion', name: 'Construcción y Reparaciones', icon: 'fas fa-hammer', color: '#f97316' },
+                { id: 'transporte', name: 'Transporte y Logística', icon: 'fas fa-truck', color: '#84cc16' },
+                { id: 'entretenimiento', name: 'Entretenimiento y Eventos', icon: 'fas fa-music', color: '#ec4899' },
+                { id: 'inmobiliaria', name: 'Inmobiliaria', icon: 'fas fa-home', color: '#6366f1' },
+                { id: 'automotriz', name: 'Automotriz', icon: 'fas fa-car', color: '#14b8a6' },
+                { id: 'financiero', name: 'Financiero y Seguros', icon: 'fas fa-dollar-sign', color: '#f59e0b' },
+                { id: 'legal', name: 'Legal y Consultoría', icon: 'fas fa-balance-scale', color: '#6b7280' },
+                { id: 'turismo', name: 'Turismo y Viajes', icon: 'fas fa-plane', color: '#0ea5e9' },
+                { id: 'deportes', name: 'Deportes y Fitness', icon: 'fas fa-dumbbell', color: '#ef4444' },
+                { id: 'arte', name: 'Arte y Cultura', icon: 'fas fa-palette', color: '#a855f7' },
+                { id: 'otros', name: 'Otros Servicios', icon: 'fas fa-ellipsis-h', color: '#6b7280' }
+            ];
+        }
+
+        // N. del programador: Ya no necesitamos inicializar datos de negocios falsos.
+        // function initializeDefaultData() {}
+
+        function setupEventListeners() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.addEventListener('input', debounce(searchBusinesses, 300));
+            
+            const businessForm = document.getElementById('businessForm');
+            if (businessForm) businessForm.addEventListener('submit', handleFormSubmit);
+
+            ['categoryFilter', 'locationFilter', 'sortFilter', 'priceFilter'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.addEventListener('change', searchBusinesses);
+            });
+
+            const adminSearchInput = document.getElementById('adminSearchInput');
+            if (adminSearchInput) adminSearchInput.addEventListener('input', debounce(refreshBusinessList, 300));
+            
+            document.getElementById('businessModal').addEventListener('click', function(event) {
+                if (event.target === this) closeBusinessModal();
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function populateCategories() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const businessCategory = document.getElementById('businessCategory');
+            const quickCategories = document.getElementById('quickCategories');
+            const allCategories = document.getElementById('allCategories');
+
+            if (!categories.length) return;
+
+            const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+            
+            if (categoryFilter) {
+                categoryFilter.innerHTML = '<option value="">Todas las categorías</option>';
+                sortedCategories.forEach(cat => {
+                    categoryFilter.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+                });
+            }
+            
+            if (businessCategory) {
+                businessCategory.innerHTML = '<option value="">Seleccionar categoría</option>';
+                sortedCategories.forEach(cat => {
+                    businessCategory.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+                });
+            }
+            
+            if (quickCategories) {
+                quickCategories.innerHTML = '';
+                categories.slice(0, 6).forEach(cat => {
+                    quickCategories.innerHTML += `
+                        <div class="text-center cursor-pointer hover:bg-white hover:bg-opacity-50 p-4 rounded-2xl transition-all duration-300 card-hover" 
+                             onclick="filterByCategory('${cat.id}')">
+                            <div class="category-icon mx-auto" style="background: linear-gradient(135deg, ${cat.color}20, ${cat.color}40); color: ${cat.color};">
+                                <i class="${cat.icon} text-2xl"></i>
+                            </div>
+                            <div class="text-sm font-semibold text-gray-700">${cat.name}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            if (allCategories) {
+                allCategories.innerHTML = '';
+                sortedCategories.forEach(cat => {
+                    const businessCount = businesses.filter(b => b.category === cat.id).length;
+                    allCategories.innerHTML += `
+                        <div class="modern-card rounded-2xl p-8 text-center card-hover cursor-pointer"
+                             onclick="filterByCategory('${cat.id}')">
+                            <div class="category-icon mx-auto mb-4" style="background: linear-gradient(135deg, ${cat.color}20, ${cat.color}40); color: ${cat.color};">
+                                <i class="${cat.icon} text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3">${cat.name}</h3>
+                            <p class="text-gray-600 font-medium">${businessCount} negocio${businessCount !== 1 ? 's' : ''}</p>
+                            <div class="mt-4 w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full" style="background: ${cat.color}; width: ${Math.min(100, businessCount * 5)}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
             }
         }
 
-        // Display businesses
-        function displayBusinesses(businessesToShow = businesses) {
-            const grid = document.getElementById('business-grid');
-            const noResults = document.getElementById('no-results');
-            const resultsCount = document.getElementById('results-count');
+        function populateStates() {
+            const states = [ 'Distrito Capital', 'Miranda', 'Carabobo', 'Zulia', 'Lara', 'Aragua', 'Anzoátegui', 'Bolívar', 'Táchira', 'Falcón', 'Yaracuy', 'Barinas', 'Portuguesa', 'Cojedes', 'Guárico', 'Apure', 'Monagas', 'Sucre', 'Nueva Esparta', 'Trujillo', 'Mérida', 'Vargas', 'Amazonas', 'Delta Amacuro', 'Internacional' ];
+            const locationFilter = document.getElementById('locationFilter');
+            const businessState = document.getElementById('businessState');
             
-            filteredBusinesses = businessesToShow;
+            if (locationFilter) {
+                locationFilter.innerHTML = '<option value="">Todas las ubicaciones</option>';
+                states.forEach(state => { locationFilter.innerHTML += `<option value="${state}">${state}</option>`; });
+            }
             
-            if (businessesToShow.length === 0) {
-                grid.innerHTML = '';
-                noResults.classList.remove('hidden');
-                resultsCount.textContent = '0 negocios encontrados';
+            if (businessState) {
+                businessState.innerHTML = '<option value="">Seleccionar estado</option>';
+                states.forEach(state => { businessState.innerHTML += `<option value="${state}">${state}</option>`; });
+            }
+        }
+
+        function showLoadingSkeleton() {
+            document.getElementById('loadingSkeleton').classList.remove('hidden');
+            document.getElementById('businessListings').classList.add('hidden');
+        }
+
+        function hideLoadingSkeleton() {
+            document.getElementById('loadingSkeleton').classList.add('hidden');
+            document.getElementById('businessListings').classList.remove('hidden');
+        }
+
+        function displayBusinesses(businessesToShow = null) {
+            const businessListings = document.getElementById('businessListings');
+            const businessCount = document.getElementById('businessCount');
+            if (!businessListings) return;
+            
+            const toShow = businessesToShow || businesses;
+                
+            if (businessCount) businessCount.textContent = toShow.length;
+            
+            if (toShow.length === 0) {
+                businessListings.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-search text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-600 mb-2">No se encontraron negocios</h3>
+                        <p class="text-gray-500">Intenta con otros términos de búsqueda o agrega un nuevo negocio desde el panel de administrador.</p>
+                    </div>
+                `;
+                hideLoadingSkeleton();
                 return;
             }
             
-            noResults.classList.add('hidden');
-            resultsCount.textContent = `${businessesToShow.length} negocio${businessesToShow.length !== 1 ? 's' : ''} encontrado${businessesToShow.length !== 1 ? 's' : ''}`;
-            
-            grid.innerHTML = businessesToShow.map(business => `
-                <div class="business-card bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="p-6">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-xl font-bold text-venezuela-blue mb-1">${business.name}</h3>
-                                <span class="inline-block bg-venezuela-yellow text-venezuela-blue px-3 py-1 rounded-full text-sm font-medium">
-                                    ${business.category}
-                                </span>
+            businessListings.innerHTML = '';
+            toShow.forEach((business, index) => {
+                const categoryData = categories.find(c => c.id === business.category) || { name: 'Sin categoría', icon: 'fas fa-building', color: '#6b7280' };
+                const rating = business.rating || 0;
+                
+                const card = `
+                    <div class="modern-card rounded-2xl p-6 card-hover relative fade-in" style="animation-delay: ${index * 0.05}s">
+                        ${business.featured ? '<div class="absolute top-4 right-4 featured-badge text-white px-3 py-1 rounded-full text-xs font-bold">⭐ DESTACADO</div>' : ''}
+                        
+                        <div class="flex items-start space-x-4 mb-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, ${categoryData.color}20, ${categoryData.color}40); color: ${categoryData.color};">
+                                    <i class="${categoryData.icon} text-xl"></i>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <div class="flex space-x-2">
-                                    <button onclick="voteBusiness(${business.id}, 'like')" 
-                                            class="like-btn flex items-center space-x-1 px-3 py-1 rounded-full border border-green-300 text-green-600 hover:bg-green-500 hover:text-white transition">
-                                        <i class="fas fa-thumbs-up"></i>
-                                        <span>${business.likes || 0}</span>
-                                    </button>
-                                    <button onclick="voteBusiness(${business.id}, 'dislike')" 
-                                            class="dislike-btn flex items-center space-x-1 px-3 py-1 rounded-full border border-red-300 text-red-600 hover:bg-red-500 hover:text-white transition">
-                                        <i class="fas fa-thumbs-down"></i>
-                                        <span>${business.dislikes || 0}</span>
-                                    </button>
+                            
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-xl font-bold text-gray-900 mb-1">${business.name}</h3>
+                                <p class="text-sm text-gray-600 mb-2">${categoryData.name}</p>
+                                
+                                <div class="flex items-center mb-3">
+                                    <div class="flex stars mr-2">
+                                        ${generateStars(rating)}
+                                    </div>
+                                    <span class="text-sm text-gray-600 font-medium">(${rating.toFixed(1)})</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="space-y-2 mb-4">
-                            ${business.manager ? `<p class="text-gray-600"><i class="fas fa-user mr-2"></i>${business.manager}</p>` : ''}
-                            ${business.phone ? `<p class="text-gray-600"><i class="fas fa-phone mr-2"></i>
-                                <a href="tel:${business.phone}" class="text-venezuela-blue hover:underline">${business.phone}</a></p>` : ''}
-                            ${business.whatsapp ? `<p class="text-gray-600"><i class="fab fa-whatsapp mr-2 text-green-500"></i>
-                                <a href="https://wa.me/${business.whatsapp.replace(/[^\d+]/g, '')}" target="_blank" class="text-green-600 hover:underline">${business.whatsapp}</a></p>` : ''}
-                            ${business.email ? `<p class="text-gray-600"><i class="fas fa-envelope mr-2"></i>
-                                <a href="mailto:${business.email}" class="text-venezuela-blue hover:underline">${business.email}</a></p>` : ''}
-                            <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>${business.location}</p>
-                            ${business.address ? `<p class="text-gray-600 text-sm">${business.address}</p>` : ''}
+                        <p class="text-gray-700 text-sm mb-4 leading-relaxed">${business.description || ''}</p>
+                        
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            ${business.contactName ? `<p class="flex items-center"><i class="fas fa-user mr-3 text-purple-500"></i>${business.contactName}</p>` : ''}
+                            ${business.address ? `<p class="flex items-center"><i class="fas fa-map-marker-alt mr-3 text-red-500"></i>${business.address}</p>` : ''}
                         </div>
                         
-                        ${business.description ? `<p class="text-gray-600 text-sm mb-4">${business.description}</p>` : ''}
-                        
-                        <div class="flex justify-between items-center">
-                            <div class="flex space-x-3">
-                                ${business.instagram ? `<a href="https://instagram.com/${business.instagram.replace('@', '')}" target="_blank" 
-                                    class="text-pink-500 hover:text-pink-700 transition">
-                                    <i class="fab fa-instagram text-xl"></i>
-                                </a>` : ''}
-                                ${business.facebook ? `<a href="${business.facebook}" target="_blank" 
-                                    class="text-blue-600 hover:text-blue-800 transition">
-                                    <i class="fab fa-facebook text-xl"></i>
-                                </a>` : ''}
+                        <div class="border-t border-gray-100 pt-4">
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${business.phone ? `<a href="tel:${business.phone}" class="px-3 py-2 bg-blue-100 text-blue-800 rounded-lg text-xs font-medium hover:bg-blue-200 transition-colors"><i class="fas fa-phone mr-1"></i>Llamar</a>` : ''}
+                                ${business.whatsapp ? `<a href="https://wa.me/${business.whatsapp.replace(/[^\d]/g, '')}?text=Hola, vi tu negocio en Clasificados Venezuela" target="_blank" class="px-3 py-2 whatsapp-btn text-white rounded-lg text-xs font-medium"><i class="fab fa-whatsapp mr-1"></i>WhatsApp</a>` : ''}
+                                ${business.instagram ? `<a href="https://instagram.com/${business.instagram.replace('@', '')}" target="_blank" class="px-3 py-2 bg-pink-100 text-pink-800 rounded-lg text-xs font-medium hover:bg-pink-200 transition-colors"><i class="fab fa-instagram mr-1"></i>Instagram</a>` : ''}
                             </div>
-                            ${business.whatsapp ? `<a href="https://wa.me/${business.whatsapp.replace(/[^\d+]/g, '')}" target="_blank"
-                                class="whatsapp-btn px-4 py-2 rounded-lg transition">
-                                <i class="fab fa-whatsapp mr-2"></i>WhatsApp
-                            </a>` : business.phone ? `<a href="tel:${business.phone}" 
-                                class="bg-venezuela-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                                <i class="fas fa-phone mr-2"></i>Llamar
-                            </a>` : ''}
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <button onclick="voteBusiness('${business.id}', 'like')" class="flex items-center space-x-2 text-green-600 hover:text-green-700 transition-colors">
+                                        <i class="fas fa-thumbs-up"></i>
+                                        <span class="font-medium">${business.likes || 0}</span>
+                                    </button>
+                                    <button onclick="voteBusiness('${business.id}', 'dislike')" class="flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors">
+                                        <i class="fas fa-thumbs-down"></i>
+                                        <span class="font-medium">${business.dislikes || 0}</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="flex space-x-3">
+                                    <button onclick="shareBusiness('${business.id}')" class="text-gray-600 hover:text-purple-600 transition-colors" title="Compartir"><i class="fas fa-share-alt text-lg"></i></button>
+                                    <button onclick="showBusinessDetail('${business.id}')" class="text-purple-600 hover:text-purple-700 transition-colors" title="Ver detalles"><i class="fas fa-eye text-lg"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+                businessListings.innerHTML += card;
+            });
+            
+            // Display featured businesses
+            const featuredBusinessesContainer = document.getElementById('featuredBusinesses');
+            if (featuredBusinessesContainer) {
+                const featured = businesses.filter(b => b.featured);
+                featuredBusinessesContainer.innerHTML = '';
+                if(featured.length === 0) {
+                     featuredBusinessesContainer.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">No hay negocios destacados en este momento.</div>`;
+                } else {
+                    featured.forEach((business, index) => {
+                        const categoryData = categories.find(c => c.id === business.category) || { name: 'Sin categoría', icon: 'fas fa-building', color: '#6b7280' };
+                        const rating = business.rating || 0;
+                        featuredBusinessesContainer.innerHTML += `
+                            <div class="modern-card rounded-2xl p-6 card-hover relative fade-in" style="animation-delay: ${index * 0.1}s">
+                                <div class="absolute top-4 right-4 featured-badge text-white px-3 py-1 rounded-full text-xs font-bold">⭐ DESTACADO</div>
+                                <div class="flex items-start space-x-4 mb-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, ${categoryData.color}20, ${categoryData.color}40); color: ${categoryData.color};"><i class="${categoryData.icon} text-xl"></i></div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-xl font-bold text-gray-900 mb-1">${business.name}</h3>
+                                        <p class="text-sm text-gray-600 mb-2">${categoryData.name}</p>
+                                        <div class="flex items-center mb-3"><div class="flex stars mr-2">${generateStars(rating)}</div><span class="text-sm text-gray-600 font-medium">(${rating.toFixed(1)})</span></div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 text-sm mb-4">${business.description || ''}</p>
+                                <div class="border-t border-gray-100 pt-4">
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        ${business.whatsapp ? `<a href="https://wa.me/${business.whatsapp.replace(/[^\d]/g, '')}?text=Hola, vi tu negocio destacado en Clasificados Venezuela" target="_blank" class="px-3 py-2 whatsapp-btn text-white rounded-lg text-xs font-medium"><i class="fab fa-whatsapp mr-1"></i>WhatsApp</a>` : ''}
+                                        ${business.phone ? `<a href="tel:${business.phone}" class="px-3 py-2 bg-blue-100 text-blue-800 rounded-lg text-xs font-medium hover:bg-blue-200 transition-colors"><i class="fas fa-phone mr-1"></i>Llamar</a>` : ''}
+                                    </div>
+                                    <div class="flex items-center justify-end">
+                                        <button onclick="showBusinessDetail('${business.id}')" class="text-purple-600 hover:text-purple-700 transition-colors" title="Ver detalles"><i class="fas fa-eye text-lg"></i></button>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                }
+            }
+            
+            hideLoadingSkeleton();
         }
 
-        // Search functionality
-        function performSearch() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const filtered = businesses.filter(business => 
-                business.name.toLowerCase().includes(searchTerm) ||
-                business.description.toLowerCase().includes(searchTerm) ||
-                business.category.toLowerCase().includes(searchTerm) ||
-                business.location.toLowerCase().includes(searchTerm) ||
-                (business.manager && business.manager.toLowerCase().includes(searchTerm))
-            );
-            displayBusinesses(filtered);
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) stars += '<i class="fas fa-star"></i>';
+                else if (i - 0.5 <= rating) stars += '<i class="fas fa-star-half-alt"></i>';
+                else stars += '<i class="far fa-star"></i>';
+            }
+            return stars;
         }
 
-        // Search businesses in admin panel
         function searchBusinesses() {
-            const searchTerm = document.getElementById('business-search').value.toLowerCase();
-            const filtered = businesses.filter(business => 
-                business.name.toLowerCase().includes(searchTerm) ||
-                business.manager?.toLowerCase().includes(searchTerm) ||
-                business.category.toLowerCase().includes(searchTerm) ||
-                business.location.toLowerCase().includes(searchTerm)
-            );
-            renderBusinessList(filtered);
-        }
-
-        // Render business list in admin panel
-        function renderBusinessList(businessesToShow) {
-            const listContainer = document.getElementById('business-list');
-            listContainer.innerHTML = businessesToShow.map(business => `
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-lg">${business.name}</h4>
-                            <p class="text-gray-600">${business.category} - ${business.location}</p>
-                            <p class="text-sm text-gray-500">${business.manager || 'Sin encargado'}</p>
-                            <div class="flex items-center space-x-4 mt-2">
-                                <span class="text-green-600"><i class="fas fa-thumbs-up mr-1"></i>${business.likes || 0}</span>
-                                <span class="text-red-600"><i class="fas fa-thumbs-down mr-1"></i>${business.dislikes || 0}</span>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button onclick="editBusiness(${business.id})" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteBusiness(${business.id})" class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Apply filters
-        function applyFilters() {
-            const locationFilter = document.getElementById('location-filter').value;
-            const categoryFilter = document.getElementById('category-filter').value;
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+            const locationFilter = document.getElementById('locationFilter')?.value || '';
+            const sortFilter = document.getElementById('sortFilter')?.value || 'name';
+            const priceFilter = document.getElementById('priceFilter')?.value || '';
             
-            let filtered = businesses;
+            let filtered = businesses.filter(business => {
+                const searchCorpus = `${business.name} ${business.description || ''} ${business.services || ''} ${business.contactName || ''}`.toLowerCase();
+                const matchesSearch = !searchTerm || searchCorpus.includes(searchTerm);
+                const matchesCategory = !categoryFilter || business.category === categoryFilter;
+                const matchesLocation = !locationFilter || business.state === locationFilter;
+                const matchesPrice = !priceFilter || business.priceRange === priceFilter;
+                return matchesSearch && matchesCategory && matchesLocation && matchesPrice;
+            });
             
-            if (searchTerm) {
-                filtered = filtered.filter(business => 
-                    business.name.toLowerCase().includes(searchTerm) ||
-                    business.description.toLowerCase().includes(searchTerm) ||
-                    business.category.toLowerCase().includes(searchTerm) ||
-                    business.location.toLowerCase().includes(searchTerm) ||
-                    (business.manager && business.manager.toLowerCase().includes(searchTerm))
-                );
-            }
-            
-            if (locationFilter) {
-                filtered = filtered.filter(business => business.location === locationFilter);
-            }
-            
-            if (categoryFilter) {
-                filtered = filtered.filter(business => business.category === categoryFilter);
-            }
+            filtered.sort((a, b) => {
+                if (sortFilter === 'featured') {
+                    if (a.featured && !b.featured) return -1;
+                    if (!a.featured && b.featured) return 1;
+                }
+                switch (sortFilter) {
+                    case 'rating': return (b.rating || 0) - (a.rating || 0);
+                    case 'newest': return new Date(b.dateAdded) - new Date(a.dateAdded);
+                    default: return a.name.localeCompare(b.name);
+                }
+            });
             
             displayBusinesses(filtered);
         }
 
-        // Filter by category
-        function filterByCategory(category) {
-            document.getElementById('category-filter').value = category;
-            applyFilters();
+        function filterByCategory(categoryId) {
+            document.getElementById('categoryFilter').value = categoryId;
+            showView('home');
+            searchBusinesses();
         }
 
-        // Sort businesses
-        function sortBusinesses() {
-            const sortOption = document.getElementById('sort-options').value;
-            let sorted = [...filteredBusinesses];
-            
-            switch(sortOption) {
-                case 'popular':
-                    sorted.sort((a, b) => (b.likes - b.dislikes) - (a.likes - a.dislikes));
-                    break;
-                case 'name':
-                    sorted.sort((a, b) => a.name.localeCompare(b.name));
-                    break;
-                case 'location':
-                    sorted.sort((a, b) => a.location.localeCompare(b.location));
-                    break;
-                case 'newest':
-                default:
-                    sorted.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
-                    break;
-            }
-            
-            displayBusinesses(sorted);
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('locationFilter').value = '';
+            document.getElementById('sortFilter').value = 'name';
+            document.getElementById('priceFilter').value = '';
+            displayBusinesses();
+            showToast('Filtros limpiados', 'info');
         }
 
-        // Vote for business
+        // N. del programador: Votar ahora usa una transacción de Firebase para ser más seguro.
+        // Y la actualización en pantalla es automática gracias al listener.
         function voteBusiness(businessId, voteType) {
             const userVotes = JSON.parse(localStorage.getItem('userVotes') || '{}');
-            const voteKey = `${businessId}_${voteType}`;
-            
-            if (userVotes[voteKey]) {
-                alert('Ya has votado por este negocio.');
+            if (userVotes[businessId]) {
+                showToast('Ya has votado por este negocio', 'error');
                 return;
             }
-            
-            const business = businesses.find(b => b.id === businessId);
-            if (business) {
-                if (voteType === 'like') {
-                    business.likes = (business.likes || 0) + 1;
-                } else {
-                    business.dislikes = (business.dislikes || 0) + 1;
+
+            const businessRef = database.ref('businesses/' + businessId);
+            businessRef.transaction(currentData => {
+                if (currentData === null) {
+                    return; 
                 }
-                
-                userVotes[voteKey] = true;
-                localStorage.setItem('userVotes', JSON.stringify(userVotes));
-                
-                saveBusinesses();
-                displayBusinesses(filteredBusinesses);
-                updateStatistics();
+                if (voteType === 'like') {
+                    currentData.likes = (currentData.likes || 0) + 1;
+                } else {
+                    currentData.dislikes = (currentData.dislikes || 0) + 1;
+                }
+                currentData.rating = ((currentData.likes || 0) / ((currentData.likes || 0) + (currentData.dislikes || 0))) * 5;
+                return currentData;
+            });
+            
+            userVotes[businessId] = voteType;
+            localStorage.setItem('userVotes', JSON.stringify(userVotes));
+            showToast('¡Gracias por tu voto!', 'success');
+        }
+
+        function shareBusiness(businessId) {
+            const business = businesses.find(b => b.id == businessId);
+            if (!business) return;
+            const url = window.location.href;
+            const text = `¡Mira este negocio en Clasificados Venezuela!\n\n${business.name}\n${business.description || ''}\n\n${url}`;
+            if (navigator.share) {
+                navigator.share({ title: business.name, text: text, url: url });
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Información del negocio copiada al portapapeles', 'success');
+                });
             }
         }
 
-        // Mobile menu toggle
+        function showBusinessDetail(businessId) {
+            const business = businesses.find(b => b.id == businessId);
+            if (!business) return;
+            const categoryData = categories.find(c => c.id === business.category) || { name: 'Sin categoría', icon: 'fas fa-building', color: '#6b7280' };
+            const rating = business.rating || 0;
+            const modalContent = `
+                <div class="p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <h2 class="text-3xl font-bold text-gray-900">${business.name}</h2>
+                        <button onclick="closeBusinessModal()" class="text-gray-400 hover:text-gray-600 text-2xl"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, ${categoryData.color}20, ${categoryData.color}40); color: ${categoryData.color};"><i class="${categoryData.icon} text-xl"></i></div>
+                            <div>
+                                <p class="font-bold text-gray-900 text-lg">${categoryData.name}</p>
+                                <div class="flex items-center"><div class="flex stars mr-2">${generateStars(rating)}</div><span class="text-sm text-gray-600 font-medium">(${rating.toFixed(1)})</span></div>
+                            </div>
+                        </div>
+                        ${business.description ? `<div class="bg-gray-50 rounded-2xl p-6"><p class="text-gray-700 leading-relaxed">${business.description}</p></div>` : ''}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <h3 class="font-bold text-gray-800 text-lg">Información de Contacto</h3>
+                                ${business.contactName ? `<p class="flex items-center"><i class="fas fa-user mr-3 text-purple-500"></i><span class="font-medium">${business.contactName}</span></p>` : ''}
+                                ${business.phone ? `<p class="flex items-center"><i class="fas fa-phone mr-3 text-blue-500"></i><a href="tel:${business.phone}" class="text-blue-600 hover:underline font-medium">${business.phone}</a></p>` : ''}
+                                ${business.email ? `<p class="flex items-center"><i class="fas fa-envelope mr-3 text-red-500"></i><a href="mailto:${business.email}" class="text-blue-600 hover:underline font-medium">${business.email}</a></p>` : ''}
+                            </div>
+                            <div class="space-y-4">
+                                <h3 class="font-bold text-gray-800 text-lg">Ubicación y Horario</h3>
+                                ${business.address ? `<p class="flex items-center"><i class="fas fa-map-marker-alt mr-3 text-red-500"></i><span>${business.address}</span></p>` : ''}
+                                ${business.city && business.state ? `<p class="flex items-center"><i class="fas fa-map mr-3 text-green-500"></i><span>${business.city}, ${business.state}</span></p>` : ''}
+                                ${business.hours ? `<p class="flex items-center"><i class="fas fa-clock mr-3 text-blue-500"></i><span>${business.hours}</span></p>` : ''}
+                            </div>
+                        </div>
+                        ${business.services ? `<div class="bg-blue-50 rounded-2xl p-6"><h3 class="font-bold text-gray-800 mb-3 text-lg">Servicios</h3><p class="text-gray-700 leading-relaxed">${business.services}</p></div>` : ''}
+                        <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200">
+                            ${business.whatsapp ? `<a href="https://wa.me/${business.whatsapp.replace(/[^\d]/g, '')}?text=Hola, vi tu negocio en Clasificados Venezuela" target="_blank" class="px-6 py-3 whatsapp-btn text-white rounded-xl font-medium"><i class="fab fa-whatsapp mr-2"></i>WhatsApp</a>` : ''}
+                            ${business.instagram ? `<a href="https://instagram.com/${business.instagram.replace('@', '')}" target="_blank" class="px-6 py-3 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-colors font-medium"><i class="fab fa-instagram mr-2"></i>Instagram</a>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('businessModalContent').innerHTML = modalContent;
+            document.getElementById('businessModal').classList.remove('hidden');
+        }
+
+        function closeBusinessModal() {
+            document.getElementById('businessModal').classList.add('hidden');
+        }
+
+        function showView(viewName) {
+            document.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
+            const targetView = document.getElementById(viewName + 'View');
+            if (targetView) targetView.classList.remove('hidden');
+            document.getElementById('mobileMenu').classList.add('hidden');
+        }
+
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            document.getElementById('mobileMenu').classList.toggle('hidden');
         }
 
-        // Admin panel functions
-        function toggleAdminPanel() {
-            document.getElementById('admin-overlay').classList.remove('hidden');
-            document.getElementById('admin-login').classList.remove('hidden');
-            document.getElementById('admin-dashboard').classList.add('hidden');
-        }
-
-        function closeAdminPanel() {
-            document.getElementById('admin-overlay').classList.add('hidden');
-            document.getElementById('admin-password').value = '';
+        function changeView(viewType) {
+            currentView = viewType;
+            const gridBtn = document.getElementById('gridViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            const isGrid = viewType === 'grid';
+            
+            gridBtn.className = `p-3 rounded-xl ${isGrid ? 'btn-primary text-white' : 'bg-gray-300 text-gray-600 hover:bg-gray-400 transition-colors'}`;
+            listBtn.className = `p-3 rounded-xl ${!isGrid ? 'btn-primary text-white' : 'bg-gray-300 text-gray-600 hover:bg-gray-400 transition-colors'}`;
+            document.getElementById('businessListings').className = isGrid ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8' : 'space-y-6';
+            
+            showToast(`Vista cambiada a ${isGrid ? 'cuadrícula' : 'lista'}`, 'info');
         }
 
         function adminLogin() {
-            const password = document.getElementById('admin-password').value;
-            if (password === 'admin123') {
-                document.getElementById('admin-login').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                showAdminTab('add-business');
-                loadBusinessList();
-                updateStatistics();
+            if (document.getElementById('adminPassword').value === 'admin123') {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                showAdminSection('dashboard');
+                updateStats();
+                updateCharts();
+                showToast('Bienvenido al panel de administración', 'success');
             } else {
-                alert('Contraseña incorrecta');
+                showToast('Contraseña incorrecta', 'error');
             }
         }
 
-        function showAdminTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.add('hidden'));
-            document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('border-venezuela-blue'));
-            
-            // Show selected tab
-            document.getElementById(tabName + '-tab').classList.remove('hidden');
-            event.target.classList.add('border-venezuela-blue');
-            
-            if (tabName === 'manage-business') {
-                loadBusinessList();
-            } else if (tabName === 'statistics') {
-                updateStatistics();
-            }
+        function adminLogout() {
+            isAdminLoggedIn = false;
+            document.getElementById('adminLogin').classList.remove('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('adminPassword').value = '';
+            showToast('Sesión cerrada correctamente', 'info');
+            showView('home');
         }
 
-        // Business form submission
-        document.getElementById('business-form').addEventListener('submit', function(e) {
-            e.preventDefault();
+        function showAdminSection(sectionName, event) {
+            if (!isAdminLoggedIn) return;
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) targetSection.classList.remove('hidden');
+
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => btn.classList.remove('bg-purple-100', 'text-purple-800'));
+            const activeBtn = event ? event.currentTarget : document.querySelector(`[onclick*="'${sectionName}'"]`);
+            if (activeBtn) activeBtn.classList.add('bg-purple-100', 'text-purple-800');
+            
+            if (sectionName === 'businesses') refreshBusinessList();
+            if (sectionName === 'dashboard') updateCharts();
+        }
+
+        // N. del programador: Esta función ahora escribe directamente en Firebase.
+        // Es más simple y potente. No necesita actualizar la UI manualmente.
+        function handleFormSubmit(event) {
+            event.preventDefault();
             
             const businessData = {
-                id: editingBusinessId || Date.now(),
-                name: document.getElementById('business-name').value,
-                manager: document.getElementById('business-manager').value,
-                phone: document.getElementById('business-phone').value,
-                whatsapp: document.getElementById('business-whatsapp').value,
-                email: document.getElementById('business-email').value,
-                instagram: document.getElementById('business-instagram').value,
-                facebook: document.getElementById('business-facebook').value,
-                address: document.getElementById('business-address').value,
-                location: document.getElementById('business-location').value,
-                category: document.getElementById('business-category').value,
-                description: document.getElementById('business-description').value,
-                likes: 0,
-                dislikes: 0,
-                dateAdded: editingBusinessId ? 
-                    businesses.find(b => b.id === editingBusinessId)?.dateAdded || new Date().toISOString() :
-                    new Date().toISOString()
+                name: document.getElementById('businessName').value,
+                contactName: document.getElementById('contactName').value,
+                phone: document.getElementById('businessPhone').value,
+                whatsapp: document.getElementById('businessWhatsapp').value,
+                instagram: document.getElementById('businessInstagram').value,
+                email: document.getElementById('businessEmail').value,
+                address: document.getElementById('businessAddress').value,
+                state: document.getElementById('businessState').value,
+                city: document.getElementById('businessCity').value,
+                category: document.getElementById('businessCategory').value,
+                description: document.getElementById('businessDescription').value,
+                hours: document.getElementById('businessHours').value,
+                services: document.getElementById('businessServices').value,
+                priceRange: document.getElementById('businessPriceRange').value,
+                featured: document.getElementById('businessFeatured').checked,
+                dateAdded: new Date().toISOString()
             };
             
-            if (editingBusinessId) {
-                const index = businesses.findIndex(b => b.id === editingBusinessId);
-                if (index !== -1) {
-                    // Preserve existing likes/dislikes
-                    businessData.likes = businesses[index].likes || 0;
-                    businessData.dislikes = businesses[index].dislikes || 0;
-                    businesses[index] = businessData;
-                }
-                editingBusinessId = null;
+            if (currentEditingId) {
+                // Si estamos editando, actualizamos el registro existente.
+                database.ref('businesses/' + currentEditingId).update(businessData)
+                    .then(() => {
+                        showToast('Negocio actualizado exitosamente', 'success');
+                        clearForm();
+                        showAdminSection('businesses');
+                    })
+                    .catch(error => showToast(`Error al actualizar: ${error.message}`, 'error'));
+                currentEditingId = null;
             } else {
-                businesses.push(businessData);
+                // Si es nuevo, usamos push() para que Firebase genere un ID único.
+                // Y añadimos los contadores iniciales.
+                businessData.likes = 0;
+                businessData.dislikes = 0;
+                businessData.rating = 0;
+                database.ref('businesses').push(businessData)
+                    .then(() => {
+                        showToast('Negocio agregado exitosamente', 'success');
+                        clearForm();
+                    })
+                    .catch(error => showToast(`Error al agregar: ${error.message}`, 'error'));
             }
-            
-            saveBusinesses();
-            displayBusinesses();
-            loadBusinessList();
-            updateStatistics();
-            
-            this.reset();
-            alert('Negocio guardado exitosamente!');
-        });
-
-        // Load business list for management
-        function loadBusinessList() {
-            renderBusinessList(businesses);
         }
 
-        // Edit business
+        function clearForm() {
+            document.getElementById('businessForm').reset();
+            currentEditingId = null;
+        }
+
         function editBusiness(businessId) {
-            const business = businesses.find(b => b.id === businessId);
-            if (business) {
-                editingBusinessId = businessId;
-                
-                document.getElementById('business-name').value = business.name;
-                document.getElementById('business-manager').value = business.manager || '';
-                document.getElementById('business-phone').value = business.phone || '';
-                document.getElementById('business-whatsapp').value = business.whatsapp || '';
-                document.getElementById('business-email').value = business.email || '';
-                document.getElementById('business-instagram').value = business.instagram || '';
-                document.getElementById('business-facebook').value = business.facebook || '';
-                document.getElementById('business-address').value = business.address || '';
-                document.getElementById('business-location').value = business.location;
-                document.getElementById('business-category').value = business.category;
-                document.getElementById('business-description').value = business.description || '';
-                
-                showAdminTab('add-business');
-            }
-        }
-
-        // Delete business
-        function deleteBusiness(businessId) {
-            if (confirm('¿Estás seguro de que quieres eliminar este negocio?')) {
-                businesses = businesses.filter(b => b.id !== businessId);
-                saveBusinesses();
-                displayBusinesses();
-                loadBusinessList();
-                updateStatistics();
-            }
-        }
-
-        // Update statistics
-        function updateStatistics() {
-            const totalBusinesses = businesses.length;
-            const totalLikes = businesses.reduce((sum, b) => sum + (b.likes || 0), 0);
-            const categories = [...new Set(businesses.map(b => b.category))];
+            const business = businesses.find(b => b.id == businessId);
+            if (!business) return;
+            currentEditingId = businessId;
             
-            document.getElementById('total-businesses').textContent = totalBusinesses;
-            document.getElementById('total-likes').textContent = totalLikes;
-            document.getElementById('active-categories').textContent = categories.length;
-            
-            // Category statistics
-            const categoryStats = {};
-            businesses.forEach(business => {
-                categoryStats[business.category] = (categoryStats[business.category] || 0) + 1;
-            });
-            
-            const categoryStatsContainer = document.getElementById('category-stats');
-            if (categoryStatsContainer) {
-                categoryStatsContainer.innerHTML = Object.entries(categoryStats)
-                    .sort(([,a], [,b]) => b - a)
-                    .map(([category, count]) => `
-                        <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
-                            <span class="font-medium">${category}</span>
-                            <span class="bg-venezuela-blue text-white px-3 py-1 rounded-full text-sm">${count}</span>
-                        </div>
-                    `).join('');
-            }
-        }
-
-        // Export data
-        function exportData() {
-            const dataStr = JSON.stringify(businesses, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'clasificados_venezuela_backup.json';
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // Import data
-        function importData() {
-            document.getElementById('import-file').click();
-        }
-
-        function handleImport() {
-            const file = document.getElementById('import-file').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const importedData = JSON.parse(e.target.result);
-                        if (Array.isArray(importedData)) {
-                            if (confirm('¿Estás seguro de que quieres importar estos datos? Esto reemplazará todos los datos existentes.')) {
-                                businesses = importedData;
-                                saveBusinesses();
-                                displayBusinesses();
-                                loadBusinessList();
-                                updateStatistics();
-                                alert('Datos importados exitosamente!');
-                            }
-                        } else {
-                            alert('Formato de archivo inválido');
-                        }
-                    } catch (error) {
-                        alert('Error al leer el archivo');
-                    }
-                };
-                reader.readAsText(file);
-            }
-        }
-
-        // Close admin panel when clicking outside
-        document.getElementById('admin-overlay').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAdminPanel();
-            }
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+            Object.keys(business).forEach(key => {
+                const element = document.getElementById(`business${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                if(element) {
+                    if(element.type === 'checkbox') element.checked = business[key];
+                    else element.value = business[key];
                 }
             });
-        });
+            
+            showAdminSection('add');
+            showToast(`Editando negocio: ${business.name}`, 'info');
+            window.scrollTo(0, 0);
+        }
+        
+        // N. del programador: Eliminar ahora es tan simple como enviar la orden a Firebase.
+        function deleteBusiness(businessId) {
+            const business = businesses.find(b => b.id == businessId);
+            if (!business) return;
+            
+            if (confirm(`¿Estás seguro de que quieres eliminar "${business.name}"? Esta acción no se puede deshacer.`)) {
+                database.ref('businesses/' + businessId).remove()
+                    .then(() => showToast(`"${business.name}" fue eliminado.`, 'success'))
+                    .catch(error => showToast(`Error al eliminar: ${error.message}`, 'error'));
+                // La UI se actualiza sola gracias al listener de 'value'.
+            }
+        }
+
+        function refreshBusinessList() {
+            const tableBody = document.getElementById('businessTableBody');
+            if (!tableBody) return;
+            
+            const searchTerm = document.getElementById('adminSearchInput')?.value.toLowerCase() || '';
+            const filtered = businesses.filter(b => b.name.toLowerCase().includes(searchTerm) || b.category.toLowerCase().includes(searchTerm));
+            
+            tableBody.innerHTML = '';
+            filtered.forEach(business => {
+                const categoryData = categories.find(c => c.id === business.category) || { name: 'Sin categoría' };
+                const row = `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4"><div class="font-bold text-gray-900">${business.name}</div><div class="text-sm text-gray-600">${business.contactName || ''}</div></td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${categoryData.name}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${business.city || ''}, ${business.state || ''}</td>
+                        <td class="px-6 py-4"><div class="flex stars text-sm">${generateStars(business.rating || 0)}</div></td>
+                        <td class="px-6 py-4">${business.featured ? '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Destacado</span>' : '<span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">Normal</span>'}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex space-x-3">
+                                <button onclick="editBusiness('${business.id}')" class="text-blue-600 hover:text-blue-700 transition-colors" title="Editar"><i class="fas fa-edit text-lg"></i></button>
+                                <button onclick="deleteBusiness('${business.id}')" class="text-red-600 hover:text-red-700 transition-colors" title="Eliminar"><i class="fas fa-trash text-lg"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function updateStats() {
+            if (document.getElementById('totalBusinesses')) 
+                document.getElementById('totalBusinesses').textContent = businesses.length;
+            if (document.getElementById('featuredBusinessesCount'))
+                document.getElementById('featuredBusinessesCount').textContent = businesses.filter(b => b.featured).length;
+            if (document.getElementById('totalCategories'))
+                document.getElementById('totalCategories').textContent = categories.length;
+            if (document.getElementById('totalLikes'))
+                document.getElementById('totalLikes').textContent = businesses.reduce((sum, b) => sum + (b.likes || 0), 0);
+        }
+
+        function updateCharts() {
+            if (!Chart || !isAdminLoggedIn) return;
+
+            const categoryCtx = document.getElementById('categoryChart')?.getContext('2d');
+            if (categoryCtx) {
+                if(categoryChartInstance) categoryChartInstance.destroy();
+                const categoryData = categories.map(cat => ({
+                    label: cat.name,
+                    count: businesses.filter(b => b.category === cat.id).length,
+                    color: cat.color
+                })).filter(d => d.count > 0);
+                
+                categoryChartInstance = new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: { labels: categoryData.map(d => d.label), datasets: [{ data: categoryData.map(d => d.count), backgroundColor: categoryData.map(d => d.color) }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            }
+            
+            const ratingsCtx = document.getElementById('ratingsChart')?.getContext('2d');
+            if (ratingsCtx) {
+                if(ratingsChartInstance) ratingsChartInstance.destroy();
+                const totalLikes = businesses.reduce((sum, b) => sum + (b.likes || 0), 0);
+                const totalDislikes = businesses.reduce((sum, b) => sum + (b.dislikes || 0), 0);
+                
+                ratingsChartInstance = new Chart(ratingsCtx, {
+                    type: 'bar',
+                    data: { labels: ['Me Gusta', 'No Me Gusta'], datasets: [{ data: [totalLikes, totalDislikes], backgroundColor: ['#10b981', '#ef4444'], borderRadius: 8 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                });
+            }
+        }
+
+        function exportData() {
+            const dataToExport = {
+                businesses: businesses,
+                categories: categories,
+                exportDate: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `clasificados_venezuela_pro_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Datos exportados correctamente', 'success');
+        }
+
+        function clearAllData() {
+            if (confirm('¡ADVERTENCIA! ¿Estás seguro de que quieres eliminar TODOS los negocios de la base de datos? Esta acción es PERMANENTE.')) {
+                database.ref('businesses').remove()
+                    .then(() => showToast('Todos los negocios han sido eliminados.', 'success'))
+                    .catch(error => showToast(`Error al limpiar datos: ${error.message}`, 'error'));
+            }
+        }
+
     </script>
 </body>
 </html>
